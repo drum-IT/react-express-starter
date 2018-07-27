@@ -4,7 +4,7 @@ import "./App.css";
 
 class App extends Component {
   state = {
-    serverTestMessage: ""
+    serverMessage: ""
   };
   componentDidMount() {
     this.testServer();
@@ -12,15 +12,15 @@ class App extends Component {
   testServer() {
     fetch("/api/test")
       .then(res => res.json())
-      .then(serverTestMessage => this.setState({ serverTestMessage }))
+      .then(json => this.setState({ serverMessage: json.message }))
       .catch(err =>
-        this.setState({ serverTestMessage: "the server is not working" })
+        this.setState({ serverMessage: "The server is not working." })
       );
   }
   render() {
     return (
       <div className="App">
-        <p className="test">{this.state.serverTestMessage}</p>
+        <p className="test">{this.state.serverMessage}</p>
       </div>
     );
   }
