@@ -1,4 +1,4 @@
-/* eslint no-console: 0 */
+/* eslint no-console: 0 */ // PREVENT ESLINT FROM YELLING ABOUT SERVER CONSOLE MESSAGES
 // GET DEPENDENCIES
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");

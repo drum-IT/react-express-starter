@@ -1,5 +1,6 @@
 // GET DEPENDENCIES
 /* eslint prefer-destructuring: 0 */ // ESLINT WILL COMPLAIN ABOUT THE IMPORTS WITHOUT THIS
+/* eslint no-console: 0 */ // PREVENT ESLINT FROM YELLING ABOUT SERVER CONSOLE MESSAGES
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const mongoose = require("mongoose");
