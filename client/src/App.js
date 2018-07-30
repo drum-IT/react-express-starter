@@ -37,7 +37,7 @@ class App extends Component {
       }
     }
   }
-  // SET CURRENT USER AND AUTH HEADER
+  // SET CURRENT USER, AND AUTH HEADER
   setCurrentUser(user) {
     setAuthToken(localStorage.jwtToken);
     this.setState({ user, auth: true });
