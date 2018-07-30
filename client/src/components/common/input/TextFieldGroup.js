@@ -1,6 +1,6 @@
 import React from "react";
 
-import inputStyles from "./inputStyles.css";
+// import inputStyles from "./inputStyles.css";
 
 const TextFieldGroup = ({
   name,
@@ -9,11 +9,14 @@ const TextFieldGroup = ({
   onChange,
   error,
   type,
-  cssClass
+  cssClass,
+  label
 }) => {
   return (
     <div className="form__group">
-      <i className={cssClass} />
+      <label className="field__label" htmlFor={name}>
+        {label}
+      </label>
       <input
         className="form__field form__field--text"
         name={name}

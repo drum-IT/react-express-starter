@@ -1,3 +1,5 @@
-.container {
-  text-align: center;
+html,
+body {
+  font-family: sans-serif;
+  height: 100%;
 }

@@ -46,7 +46,7 @@ export default class Register extends Component {
   }
   render() {
     return (
-      <div className="container">
+      <div className="container--center">
         <div className="form__container">
           <form className="input__form" onSubmit={this.registerUser}>
             <h2 className="form__title">Sign Up</h2>
@@ -58,6 +58,7 @@ export default class Register extends Component {
               value={this.state.username}
               error={this.state.errors.username}
               cssClass="fas fa-user"
+              label="Username"
             />
             <TextFieldGroup
               type="email"
@@ -67,6 +68,7 @@ export default class Register extends Component {
               value={this.state.email}
               error={this.state.errors.email}
               cssClass="fas fa-envelope"
+              label="Email Address"
             />
             <TextFieldGroup
               type="password"
@@ -76,6 +78,7 @@ export default class Register extends Component {
               value={this.state.password}
               error={this.state.errors.password}
               cssClass="fas fa-key"
+              label="Password"
             />
             <TextFieldGroup
               type="password"
@@ -85,15 +88,16 @@ export default class Register extends Component {
               value={this.state.passwordConf}
               error={this.state.errors.passwordConf}
               cssClass="fas fa-key"
+              label="Confirm Password"
             />
             <button className="form__submit" type="submit">
               Sign Up
             </button>
+            <div className="form__links">
+              <Link to="/">Home</Link>
+              <Link to="/login">Sign In</Link>
+            </div>
           </form>
-          <div className="form__links">
-            <Link to="/">Home</Link>
-            <Link to="/login">Sign In</Link>
-          </div>
         </div>
       </div>
     );
