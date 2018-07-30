@@ -18,7 +18,8 @@
 .form__container {
   margin: 0 auto;
   text-align: center;
-  width: 300px;
+  width: 100%;
+  max-width: 400px;
 }
 
 .input__form {
