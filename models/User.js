@@ -14,6 +14,14 @@ const UserSchema = new Schema({
   created: {
     type: Date,
     default: Date.now
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  username: {
+    type: String,
+    required: true
   }
 });
 

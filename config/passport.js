@@ -1,6 +1,7 @@
-// GET DEPENDENCIES
 /* eslint prefer-destructuring: 0 */ // ESLINT WILL COMPLAIN ABOUT THE IMPORTS WITHOUT THIS
 /* eslint no-console: 0 */ // PREVENT ESLINT FROM YELLING ABOUT SERVER CONSOLE MESSAGES
+
+// GET DEPENDENCIES
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const mongoose = require("mongoose");
@@ -11,7 +12,7 @@ const User = mongoose.model("users");
 // CONFIGURE OPTIONS
 const options = {};
 options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-options.secretOrKey = process.env.SECRET;
+options.secretOrKey = process.env.JWTsecret;
 
 module.exports = passport => {
   passport.use(
