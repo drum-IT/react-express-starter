@@ -45,14 +45,15 @@ userRouter.post("/register", (req, res) => {
     $or: [{ email: req.body.email }, { username: req.body.username }]
   }).then(users => {
     for (let i = 0; i < users.length; i += 1) {
-      if (users[i].email === req.body.email) {
-        errors.email = "That email address is already in use.";
-        return res.status(400).json(errors);
-      }
       if (users[i].username === req.body.username) {
         errors.username = "That username is already in use.";
-        return res.status(400).json(errors);
       }
+      if (users[i].email === req.body.email) {
+        errors.email = "That email address is already in use.";
+      }
+    }
+    if (errors.username || errors.email) {
+      return res.status(400).json(errors);
     }
     const newUser = new User({
       email: req.body.email,
@@ -76,7 +77,7 @@ userRouter.post("/register", (req, res) => {
   });
 });
 
-// @route  POST api/user/verify
+// @route  GET api/user/verify
 // @desc   Verify a user account
 // @access Public
 userRouter.get("/verify/:token/:email", (req, res) => {

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET STYLES
@@ -21,11 +21,6 @@ export default class Register extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.registerUser = this.registerUser.bind(this);
   }
-  componentDidMount() {
-    if (this.props.auth) {
-      window.location.href = "/";
-    }
-  }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }
@@ -41,11 +36,12 @@ export default class Register extends Component {
       .post("/api/user/register", userData)
       .then(response => (window.location.href = "/login"))
       .catch(error => {
+        console.log(error.response.data);
         this.setState({ errors: error.response.data });
       });
   }
   render() {
-    return (
+    return !this.props.auth ? (
       <div className="container--center">
         <div className="form__container">
           <form className="input__form" onSubmit={this.registerUser}>
@@ -100,6 +96,8 @@ export default class Register extends Component {
           </form>
         </div>
       </div>
+    ) : (
+      <Redirect to="/" />
     );
   }
 }

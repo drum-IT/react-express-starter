@@ -1,6 +1,6 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
@@ -24,11 +24,6 @@ export default class Login extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.loginUser = this.loginUser.bind(this);
   }
-  componentDidMount() {
-    if (this.props.auth) {
-      window.location.href = "/";
-    }
-  }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }
@@ -48,7 +43,7 @@ export default class Login extends Component {
       .catch(err => this.setState({ errors: err.response.data }));
   }
   render() {
-    return (
+    return !this.props.auth ? (
       <div className="container--center">
         <div className="form__container">
           <form className="input__form" onSubmit={this.loginUser}>
@@ -84,6 +79,8 @@ export default class Login extends Component {
           </form>
         </div>
       </div>
+    ) : (
+      <Redirect to="/" />
     );
   }
 }
