@@ -73,6 +73,8 @@ Mailer.sendEmail = (type, emailAddress, host) => {
           </div>
         `
       };
+      console.log("Message sent to: ", emailAddress);
+      console.log(message);
       sgMail.send(message);
       break;
     case "verified":
