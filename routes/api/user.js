@@ -9,11 +9,6 @@ const passport = require("passport");
 // GET MAILER MODULE. USED TO SEND REGISTRATION AND VERIFICATION EMAILS.
 const Mailer = require("../../util/mailer");
 
-function sendVerifyEmail(email) {
-  const verificationToken = jwt.sign({ email }, process.env.JWTsecret, {});
-  Mailer.sendTestRegistrationEmail(email, verificationToken);
-}
-
 // GET VALIDATORS
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
@@ -25,13 +20,6 @@ const userRouter = express.Router();
 const User = require("../../models/User");
 
 // CONFIGURE ROUTES
-
-// @route  GET api/user/test
-// @desc   Test user route
-// @access Public
-userRouter.get("/test", (req, res) =>
-  res.json({ message: "User route test success!" })
-);
 
 // @route  POST api/user/register
 // @desc   Register a new user account
@@ -68,7 +56,7 @@ userRouter.post("/register", (req, res) => {
         newUser
           .save()
           .then(savedUser => {
-            sendVerifyEmail(savedUser.email);
+            Mailer.sendEmail("verify", savedUser.email, req.headers.host);
             res.json(savedUser);
           })
           .catch(err => console.log(err));
@@ -99,6 +87,7 @@ userRouter.get("/verify/:token/:email", (req, res) => {
         if (updateErr) {
           return res.status(400).json(updateErr);
         }
+        Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
         return res.json({ message: `${updatedUser.email} verified.` });
       }
     );
@@ -120,7 +109,7 @@ userRouter.post("/login", (req, res) => {
       return res.status(400).json(errors);
     }
     if (!user.verified) {
-      sendVerifyEmail(user.email);
+      Mailer.sendEmail("verify", user.email, req.headers.host);
       errors.email =
         "You must verify your account before logging in. Please check your email.";
       return res.status(400).json(errors);
@@ -135,7 +124,9 @@ userRouter.post("/login", (req, res) => {
           payload,
           process.env.JWTsecret,
           { expiresIn: 3600 },
-          (err, token) => res.json({ success: true, token: `Bearer ${token}` })
+          (err, token) => {
+            res.json({ success: true, token: `Bearer ${token}` });
+          }
         );
       }
       errors.email = "Email address or password incorrect.";
