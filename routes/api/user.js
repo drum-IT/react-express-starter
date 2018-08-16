@@ -12,6 +12,8 @@ const Mailer = require("../../util/mailer");
 // GET VALIDATORS
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
+const validateForgotInput = require("../../validation/forgot");
+const validateResetInput = require("../../validation/reset");
 
 // CREATE EXPRESS ROUTER
 const userRouter = express.Router();
@@ -56,10 +58,104 @@ userRouter.post("/register", (req, res) => {
         newUser
           .save()
           .then(savedUser => {
-            Mailer.sendEmail("verify", savedUser.email, req.headers.host);
+            const { email } = savedUser;
+            const verificationToken = jwt.sign(
+              { email },
+              process.env.JWTsecret,
+              {}
+            );
+            Mailer.sendEmail(
+              "verify",
+              email,
+              req.headers.host,
+              verificationToken
+            );
             res.json(savedUser);
           })
           .catch(err => console.log(err));
+      });
+    });
+  });
+});
+
+// @route  POST api/user/forgot
+// @desc   Trigger password reset
+// @access Public
+userRouter.post("/forgot", (req, res) => {
+  const { errors, isValid } = validateForgotInput(req.body);
+  const messages = {};
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+  const { email } = req.body;
+  const resetToken =
+    Math.random()
+      .toString(36)
+      .substring(2, 15) +
+    Math.random()
+      .toString(36)
+      .substring(2, 15);
+  const resetTime = Date.now() + 3600000;
+  return User.findOneAndUpdate(
+    { email },
+    { resetToken, resetTime },
+    { new: true },
+    (updateErr, updatedUser) => {
+      if (updateErr) {
+        return res.status(400).json(updateErr);
+      }
+      if (!updatedUser) {
+        errors.email = "Email address not found.";
+        return res.status(404).json(errors);
+      }
+      Mailer.sendEmail(
+        "reset",
+        updatedUser.email,
+        req.headers["x-forwarded-host"],
+        resetToken
+      );
+      messages.email = "Please check your email.";
+      return res.json(messages);
+    }
+  );
+});
+
+// @route  POST api/user/reset/token/email
+// @desc   Reset password
+// @access Public
+userRouter.post("/reset/:token/:email", (req, res) => {
+  const { errors, isValid } = validateResetInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+  const { token, email } = req.params;
+  return User.findOne({ email, resetToken: token }, (err, foundUser) => {
+    if (!foundUser) {
+      errors.formError = "Reset link is not valid.";
+      return res.status(404).json(errors);
+    }
+    if (foundUser.resetTime <= Date.now()) {
+      errors.formError = "Reset link has expired.";
+      return res.json(errors);
+    }
+    const { password } = req.body;
+    return bcrypt.genSalt(10, (genErr, salt) => {
+      if (genErr) throw genErr;
+      bcrypt.hash(password, salt, (hashErr, hash) => {
+        if (hashErr) throw hashErr;
+        User.findByIdAndUpdate(
+          foundUser.id,
+          { password: hash, resetToken: "", resetTime: Date.now() },
+          (updateErr, updatedUser) => {
+            if (updateErr) {
+              return res.json(updateErr);
+            }
+            if (!updatedUser) {
+              return res.status(404).json({ error: "could not find user" });
+            }
+            return res.json(updatedUser);
+          }
+        );
       });
     });
   });

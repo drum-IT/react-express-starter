@@ -1,6 +1,6 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, withRouter } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 
 // GET STYLESHEETS
@@ -13,6 +13,11 @@ import setAuthToken from "./util/setAuthToken";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Landing from "./components/Landing";
+import Forgot from "./components/auth/Forgot";
+import Reset from "./components/auth/Reset";
+
+// WRAP RESET IN WITH withRouter TO GET ACCESS TO URL PARAMS
+const ResetWithParams = withRouter(Reset);
 
 class App extends Component {
   constructor() {
@@ -22,16 +27,16 @@ class App extends Component {
       auth: false
     };
     this.setCurrentUser = this.setCurrentUser.bind(this);
-    this.clearCurrentUser = this.clearCurrentUser.bind(this);
+    this.logOutUser = this.logOutUser.bind(this);
   }
   // CHECK FOR EXISTING JWT IN LOCAL STORAGE
   // USE IT TO SER CURRENT USER, OR CLEAR USER AND AUTH HEADER IF EXPIRED
-  componentWillMount() {
+  componentDidMount() {
     if (localStorage.jwtToken) {
       const decoded = jwtDecode(localStorage.jwtToken);
       const currentTime = Date.now() / 1000;
       if (decoded.exp < currentTime) {
-        this.clearCurrentUser();
+        this.logOutUser();
       } else {
         this.setCurrentUser(decoded);
       }
@@ -43,7 +48,7 @@ class App extends Component {
     this.setState({ user, auth: true });
   }
   // CLEAR CURRENT USER, AUTH HEADER, AND JWT TOKEN IN LOCAL STORAGE
-  clearCurrentUser() {
+  logOutUser() {
     setAuthToken(false);
     localStorage.removeItem("jwtToken");
     this.setState({ user: {}, auth: false });
@@ -56,7 +61,7 @@ class App extends Component {
             exact
             path="/"
             render={props => (
-              <Landing user={this.state.user} logOut={this.clearCurrentUser} />
+              <Landing user={this.state.user} logOut={this.logOutUser} />
             )}
           />
           <Route
@@ -73,6 +78,16 @@ class App extends Component {
             exact
             path="/register"
             render={props => <Register auth={this.state.auth} />}
+          />
+          <Route
+            exact
+            path="/forgot"
+            render={props => <Forgot auth={this.state.auth} />}
+          />
+          <Route
+            exact
+            path="/reset/:token/:email"
+            render={props => <ResetWithParams auth={this.state.auth} />}
           />
         </div>
       </Router>

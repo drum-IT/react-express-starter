@@ -1,7 +1,5 @@
 import React from "react";
 
-// import inputStyles from "./inputStyles.css";
-
 const TextFieldGroup = ({
   name,
   placeholder,
@@ -10,7 +8,8 @@ const TextFieldGroup = ({
   error,
   type,
   cssClass,
-  label
+  label,
+  message
 }) => {
   return (
     <div className="form__group">
@@ -26,6 +25,7 @@ const TextFieldGroup = ({
         type={type}
       />
       {error && <div className="form__field--error">{error}</div>}
+      {message && <div className="form__field--message">{message}</div>}
     </div>
   );
 };

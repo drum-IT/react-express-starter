@@ -22,6 +22,17 @@ const UserSchema = new Schema({
   username: {
     type: String,
     required: true
+  },
+  admin: {
+    type: Boolean,
+    default: false
+  },
+  resetToken: {
+    type: String
+  },
+  resetTime: {
+    type: Date,
+    default: Date.now
   }
 });
 

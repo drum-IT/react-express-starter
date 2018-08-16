@@ -8,6 +8,25 @@
   box-sizing: border-box;
 }
 
+.container--column {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.link__list {
+  display: grid;
+  grid-gap: 5px;
+  justify-items: center;
+}
+
+.link {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--darkgrey);
+}
+
 .container--center {
   display: flex;
   align-items: center;
@@ -76,6 +95,14 @@
   position: absolute;
 }
 
+.form__field--message {
+  color: rgba(0, 200, 0, 0.7);
+  font-size: 0.7rem;
+  font-weight: 300;
+  margin-top: 68px;
+  position: absolute;
+}
+
 .form__field:focus {
   outline: none;
 }
@@ -85,6 +112,7 @@
   border: none;
   border-radius: 5px;
   color: var(--darkgrey);
+  cursor: pointer;
   font-weight: 300;
   height: 3rem;
   padding: 5px 10px;
@@ -103,4 +131,10 @@
 .form__links a {
   color: var(--darkgrey);
   text-decoration: none;
+}
+
+.form__error {
+  color: rgba(255, 0, 0, 0.7);
+  margin-top: 20px;
+  font-size: 0.8rem;
 }

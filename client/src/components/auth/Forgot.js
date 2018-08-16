@@ -2,7 +2,6 @@
 import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
-import jwtDecode from "jwt-decode";
 
 // GET STYLES
 import formStyles from "./formStyles.css";
@@ -13,41 +12,37 @@ import setAuthToken from "../../util/setAuthToken";
 // GET COMPONENTS
 import TextFieldGroup from "../common/input/TextFieldGroup";
 
-export default class Login extends Component {
+export default class Forgot extends Component {
   constructor() {
     super();
     this.state = {
       email: "",
-      password: "",
-      errors: {}
+      errors: {},
+      messages: {}
     };
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.loginUser = this.loginUser.bind(this);
+    this.resetPassword = this.resetPassword.bind(this);
   }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }
-  loginUser(event) {
+  resetPassword(event) {
     event.preventDefault();
-    const userData = { email: this.state.email, password: this.state.password };
+    const userData = { email: this.state.email };
     axios
-      .post("/api/user/login", userData)
+      .post("/api/user/forgot", userData)
       .then(response => {
-        const { token } = response.data;
-        const decoded = jwtDecode(token);
-        localStorage.setItem("jwtToken", token);
-        setAuthToken(token);
-        this.props.setCurrentUser(decoded);
+        this.setState({ messages: response.data, errors: {} });
         <Redirect to="/" />;
       })
-      .catch(err => this.setState({ errors: err.response.data }));
+      .catch(err => this.setState({ messages: {}, errors: err.response.data }));
   }
   render() {
     return !this.props.auth ? (
       <div className="container--center">
         <div className="form__container">
-          <form className="input__form" onSubmit={this.loginUser}>
-            <h2 className="form__title">Sign In</h2>
+          <form className="input__form" onSubmit={this.resetPassword}>
+            <h2 className="form__title">Forgot Password</h2>
             <TextFieldGroup
               type="email"
               placeholder="email"
@@ -55,27 +50,21 @@ export default class Login extends Component {
               onChange={this.handleInputChange}
               value={this.state.email}
               error={this.state.errors.email}
+              message={this.state.messages.email}
               cssClass="fas fa-envelope"
               label="Email Address"
             />
-            <TextFieldGroup
-              type="password"
-              placeholder="password"
-              name="password"
-              onChange={this.handleInputChange}
-              value={this.state.password}
-              error={this.state.errors.password}
-              cssClass="fas fa-key"
-              label="Password"
-            />
             <button className="form__submit" type="submit">
-              Sign In
+              Reset Password
             </button>
             <div className="form__links">
               <Link to="/">Home</Link>
               <Link to="/register">Sign Up</Link>
-              <Link to="/forgot">Forgot</Link>
+              <Link to="/login">Sign In</Link>
             </div>
+            {this.state.errors.formError && (
+              <div className="form__error">{this.state.errors.formError}</div>
+            )}
           </form>
         </div>
       </div>
