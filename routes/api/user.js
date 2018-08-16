@@ -58,7 +58,7 @@ userRouter.post("/register", (req, res) => {
         newUser
           .save()
           .then(savedUser => {
-            const { email } = savedUser;
+            const { email } = req.body;
             const verificationToken = jwt.sign(
               { email },
               process.env.JWTsecret,
