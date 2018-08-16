@@ -9,10 +9,8 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
   // SET SENDGRID API KEY
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   let message;
-  // let verificationToken;
   switch (type) {
     case "verify":
-      // verificationToken = jwt.sign({ emailAddress }, process.env.JWTsecret, {});
       message = {
         to: emailAddress,
         from: "test@example.com",
@@ -26,8 +24,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
           </div>
         `
       };
-      console.log("Message sent to: ", emailAddress);
-      console.log(message);
+      console.log(token, message);
       sgMail.send(message);
       break;
     case "verified":
