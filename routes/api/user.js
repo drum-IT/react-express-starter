@@ -205,7 +205,8 @@ userRouter.post("/login", (req, res) => {
       return res.status(400).json(errors);
     }
     if (!user.verified) {
-      Mailer.sendEmail("verify", user.email, req.headers.host);
+      const verificationToken = jwt.sign({ email }, process.env.JWTsecret, {});
+      Mailer.sendEmail("verify", email, req.headers.host, verificationToken);
       errors.email =
         "You must verify your account before logging in. Please check your email.";
       return res.status(400).json(errors);
