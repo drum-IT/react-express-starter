@@ -44,7 +44,7 @@ export default class Reset extends Component {
         localStorage.setItem("jwtToken", token);
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        <Redirect to="/" />;
+        window.location.href = "/";
       })
       .catch(error => {
         this.setState({ errors: error.response.data });
