@@ -60,7 +60,6 @@ userRouter.post("/register", (req, res) => {
       bcrypt.hash(newUser.password, salt, (hashErr, hash) => {
         if (hashErr) throw hashErr;
         newUser.password = hash;
-        console.log(req.body.code, process.env.ADMIN_CODE);
         if (req.body.code === process.env.ADMIN_CODE) {
           newUser.isAdmin = true;
         }
@@ -68,6 +67,7 @@ userRouter.post("/register", (req, res) => {
           .save()
           .then(savedUser => {
             const { email } = req.body;
+            console.log(req.headers);
             sendVerifyEmail(email, req.headers["x-forwarded-host"]);
             res.json(savedUser);
           })
