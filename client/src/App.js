@@ -94,6 +94,7 @@ class App extends Component {
                   {...props}
                   setCurrentUser={this.setCurrentUser}
                   auth={this.state.auth}
+                  logOutUser={this.logOutUser}
                 />
               )}
             />
@@ -111,7 +112,12 @@ class App extends Component {
               exact
               path="/reset/:token/:email"
               render={props => (
-                <ResetWithParams {...props} auth={this.state.auth} />
+                <ResetWithParams
+                  {...props}
+                  auth={this.state.auth}
+                  setCurrentUser={this.setCurrentUser}
+                  logOutUser={this.logOutUser}
+                />
               )}
             />
             <Route

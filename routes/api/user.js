@@ -110,21 +110,16 @@ userRouter.post("/forgot", (req, res) => {
         errors.email = "Email address not found.";
         return res.status(404).json(errors);
       }
-      Mailer.sendEmail(
-        "reset",
-        updatedUser.email,
-        req.headers["x-forwarded-host"],
-        resetToken
-      );
+      const host =
+        process.env.NODE_ENV === "production"
+          ? req.headers.host
+          : req.headers["x-forwarded-host"];
+      Mailer.sendEmail("reset", updatedUser.email, host, resetToken);
       messages.email = "Please check your email.";
       return res.json(messages);
     }
   );
 });
-
-// @route  GET api/user/reset/token/email
-// @desc   Reset password
-// @access Public
 
 // @route  POST api/user/reset/token/email
 // @desc   Reset password
@@ -161,7 +156,20 @@ userRouter.post("/reset/:token/:email", (req, res) => {
               return res.status(404).json({ error: "could not find user" });
             }
             messages.formMessage = "Password has been updated.";
-            return res.json(messages);
+            // return res.json(messages);
+
+            const payload = {
+              id: updatedUser.id,
+              username: updatedUser.username
+            };
+            return jwt.sign(
+              payload,
+              process.env.JWTsecret,
+              { expiresIn: 3600 },
+              (err, updatedToken) => {
+                res.json({ success: true, token: `Bearer ${updatedToken}` });
+              }
+            );
           }
         );
       });

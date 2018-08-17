@@ -33,6 +33,7 @@ export default class Login extends Component {
       this.props.match.params.token &&
       this.props.match.params.email
     ) {
+      this.props.logOutUser();
       const { token, email } = this.props.match.params;
       this.setState({ token, verifyEmail: email });
       axios
@@ -55,7 +56,7 @@ export default class Login extends Component {
         localStorage.setItem("jwtToken", token);
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        <Redirect to="/" />;
+        window.location.href = "/";
       })
       .catch(err => this.setState({ errors: err.response.data }));
   }

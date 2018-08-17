@@ -1,9 +1,13 @@
 import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 // GET STYLES
 import formStyles from "./formStyles.css";
+
+// GET UTILITIES
+import setAuthToken from "../../util/setAuthToken";
 
 // GET COMPONENTS
 import TextFieldGroup from "../common/input/TextFieldGroup";
@@ -19,6 +23,9 @@ export default class Reset extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.resetPassword = this.resetPassword.bind(this);
   }
+  componentDidMount() {
+    this.props.logOutUser();
+  }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }
@@ -31,13 +38,20 @@ export default class Reset extends Component {
     };
     axios
       .post(`/api/user/reset/${token}/${email}`, userData)
-      .then(response => (window.location.href = "/login"))
+      .then(response => {
+        const { token } = response.data;
+        const decoded = jwtDecode(token);
+        localStorage.setItem("jwtToken", token);
+        setAuthToken(token);
+        this.props.setCurrentUser(decoded);
+        <Redirect to="/" />;
+      })
       .catch(error => {
         this.setState({ errors: error.response.data });
       });
   }
   render() {
-    return !this.props.auth ? (
+    return (
       <div className="container--center">
         <div className="form__container">
           <form className="input__form" onSubmit={this.resetPassword}>
@@ -76,8 +90,6 @@ export default class Reset extends Component {
           </form>
         </div>
       </div>
-    ) : (
-      <Redirect to="/" />
     );
   }
 }
