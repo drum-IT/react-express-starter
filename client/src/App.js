@@ -1,6 +1,11 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, withRouter } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  withRouter,
+  Switch
+} from "react-router-dom";
 import jwtDecode from "jwt-decode";
 
 // GET STYLESHEETS
@@ -58,48 +63,67 @@ class App extends Component {
     return (
       <Router>
         <div className="App">
-          <Route
-            exact
-            path="/"
-            render={props => (
-              <Landing user={this.state.user} logOut={this.logOutUser} />
-            )}
-          />
-          <Route
-            exact
-            path="/login"
-            render={props => (
-              <Login
-                setCurrentUser={this.setCurrentUser}
-                auth={this.state.auth}
-              />
-            )}
-          />
-          <Route
-            exact
-            path="/login/:token/:email"
-            render={props => (
-              <LoginWithParams
-                setCurrentUser={this.setCurrentUser}
-                auth={this.state.auth}
-              />
-            )}
-          />
-          <Route
-            exact
-            path="/register"
-            render={props => <Register auth={this.state.auth} />}
-          />
-          <Route
-            exact
-            path="/forgot"
-            render={props => <Forgot auth={this.state.auth} />}
-          />
-          <Route
-            exact
-            path="/reset/:token/:email"
-            render={props => <ResetWithParams auth={this.state.auth} />}
-          />
+          <Switch>
+            <Route
+              exact
+              path="/"
+              render={props => (
+                <Landing
+                  {...props}
+                  user={this.state.user}
+                  logOut={this.logOutUser}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/login"
+              render={props => (
+                <Login
+                  {...props}
+                  setCurrentUser={this.setCurrentUser}
+                  auth={this.state.auth}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/login/:token/:email"
+              render={props => (
+                <LoginWithParams
+                  {...props}
+                  setCurrentUser={this.setCurrentUser}
+                  auth={this.state.auth}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/register"
+              render={props => <Register {...props} auth={this.state.auth} />}
+            />
+            <Route
+              exact
+              path="/forgot"
+              render={props => <Forgot {...props} auth={this.state.auth} />}
+            />
+            <Route
+              exact
+              path="/reset/:token/:email"
+              render={props => (
+                <ResetWithParams {...props} auth={this.state.auth} />
+              )}
+            />
+            <Route
+              render={props => (
+                <Landing
+                  {...props}
+                  user={this.state.user}
+                  logOut={this.logOutUser}
+                />
+              )}
+            />
+          </Switch>
         </div>
       </Router>
     );

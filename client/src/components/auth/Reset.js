@@ -9,8 +9,8 @@ import formStyles from "./formStyles.css";
 import TextFieldGroup from "../common/input/TextFieldGroup";
 
 export default class Reset extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       password: "",
       passwordConf: "",

@@ -14,8 +14,8 @@ import setAuthToken from "../../util/setAuthToken";
 import TextFieldGroup from "../common/input/TextFieldGroup";
 
 export default class Login extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       email: "",
       password: "",

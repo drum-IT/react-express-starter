@@ -119,6 +119,10 @@ userRouter.post("/forgot", (req, res) => {
   );
 });
 
+// @route  GET api/user/reset/token/email
+// @desc   Reset password
+// @access Public
+
 // @route  POST api/user/reset/token/email
 // @desc   Reset password
 // @access Public
