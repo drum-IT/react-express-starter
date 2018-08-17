@@ -212,6 +212,7 @@ userRouter.post("/login", (req, res) => {
       return res.status(404).json(errors);
     }
     if (!user.verified) {
+      console.log(req.headers);
       sendVerifyEmail(user.email, req.headers["x-forwarded-host"]);
       errors.email =
         "You must verify your account before logging in. Please check your email.";
