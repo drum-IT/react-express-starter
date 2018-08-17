@@ -67,8 +67,11 @@ userRouter.post("/register", (req, res) => {
           .save()
           .then(savedUser => {
             const { email } = req.body;
-            console.log(req.headers);
-            sendVerifyEmail(email, req.headers["x-forwarded-host"]);
+            const host =
+              process.env.NODE_ENV === "production"
+                ? req.headers.host
+                : req.headers["x-forwarded-host"];
+            sendVerifyEmail(email, host);
             res.json(savedUser);
           })
           .catch(err => console.log(err));
@@ -212,8 +215,11 @@ userRouter.post("/login", (req, res) => {
       return res.status(404).json(errors);
     }
     if (!user.verified) {
-      console.log(req.headers);
-      sendVerifyEmail(user.email, req.headers["x-forwarded-host"]);
+      const host =
+        process.env.NODE_ENV === "production"
+          ? req.headers.host
+          : req.headers["x-forwarded-host"];
+      sendVerifyEmail(user.email, host);
       errors.email =
         "You must verify your account before logging in. Please check your email.";
       return res.status(400).json(errors);
