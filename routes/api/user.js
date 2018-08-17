@@ -21,6 +21,11 @@ const userRouter = express.Router();
 // GET THE USER MODEL
 const User = require("../../models/User");
 
+function sendVerifyEmail(email, host) {
+  const verificationToken = jwt.sign({ email }, process.env.JWTsecret, {});
+  Mailer.sendEmail("verify", email, host, verificationToken);
+}
+
 // CONFIGURE ROUTES
 
 // @route  POST api/user/register
@@ -55,21 +60,15 @@ userRouter.post("/register", (req, res) => {
       bcrypt.hash(newUser.password, salt, (hashErr, hash) => {
         if (hashErr) throw hashErr;
         newUser.password = hash;
+        console.log(req.body.code, process.env.ADMIN_CODE);
+        if (req.body.code === process.env.ADMIN_CODE) {
+          newUser.isAdmin = true;
+        }
         newUser
           .save()
           .then(savedUser => {
             const { email } = req.body;
-            const verificationToken = jwt.sign(
-              { email },
-              process.env.JWTsecret,
-              {}
-            );
-            Mailer.sendEmail(
-              "verify",
-              email,
-              req.headers.host,
-              verificationToken
-            );
+            sendVerifyEmail(email, req.headers["x-forwarded-host"]);
             res.json(savedUser);
           })
           .catch(err => console.log(err));
@@ -125,6 +124,7 @@ userRouter.post("/forgot", (req, res) => {
 // @access Public
 userRouter.post("/reset/:token/:email", (req, res) => {
   const { errors, isValid } = validateResetInput(req.body);
+  const messages = {};
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -153,7 +153,8 @@ userRouter.post("/reset/:token/:email", (req, res) => {
             if (!updatedUser) {
               return res.status(404).json({ error: "could not find user" });
             }
-            return res.json(updatedUser);
+            messages.formMessage = "Password has been updated.";
+            return res.json(messages);
           }
         );
       });
@@ -166,6 +167,7 @@ userRouter.post("/reset/:token/:email", (req, res) => {
 // @access Public
 userRouter.get("/verify/:token/:email", (req, res) => {
   const { token, email } = req.params;
+  const messages = {};
   if (!token) {
     return res.status(400).json({ message: "Error. No token provided." });
   }
@@ -184,7 +186,8 @@ userRouter.get("/verify/:token/:email", (req, res) => {
           return res.status(400).json(updateErr);
         }
         Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
-        return res.json({ message: `${updatedUser.email} verified.` });
+        messages.formMessage = "Account verified!";
+        return res.json(messages);
       }
     );
   });
@@ -201,12 +204,11 @@ userRouter.post("/login", (req, res) => {
   const { email, password } = req.body;
   return User.findOne({ email }).then(user => {
     if (!user) {
-      errors.email = "Email address or password incorrect.";
-      return res.status(400).json(errors);
+      errors.email = "No account found with that email address.";
+      return res.status(404).json(errors);
     }
     if (!user.verified) {
-      const verificationToken = jwt.sign({ email }, process.env.JWTsecret, {});
-      Mailer.sendEmail("verify", email, req.headers.host, verificationToken);
+      sendVerifyEmail(user.email, req.headers["x-forwarded-host"]);
       errors.email =
         "You must verify your account before logging in. Please check your email.";
       return res.status(400).json(errors);

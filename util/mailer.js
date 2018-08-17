@@ -20,11 +20,10 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
             <p>Please use this link to verify your email address.</p>
             <a href="${
               process.env.NODE_ENV === "production" ? "https" : "http"
-            }://${host}/api/user/verify/${token}/${emailAddress}">Verify</a>
+            }://${host}/login/${token}/${emailAddress}">Verify</a>
           </div>
         `
       };
-      console.log(token, message);
       sgMail.send(message);
       break;
     case "verified":

@@ -12,10 +12,11 @@ export default class Register extends Component {
   constructor() {
     super();
     this.state = {
+      username: "",
       email: "",
       password: "",
       passwordConf: "",
-      username: "",
+      code: "",
       errors: {}
     };
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -30,7 +31,8 @@ export default class Register extends Component {
       username: this.state.username,
       email: this.state.email,
       password: this.state.password,
-      passwordConf: this.state.passwordConf
+      passwordConf: this.state.passwordConf,
+      code: this.state.code
     };
     axios
       .post("/api/user/register", userData)
@@ -84,6 +86,16 @@ export default class Register extends Component {
               error={this.state.errors.passwordConf}
               cssClass="fas fa-key"
               label="Confirm Password"
+            />
+            <TextFieldGroup
+              type="password"
+              placeholder="optional"
+              name="code"
+              onChange={this.handleInputChange}
+              value={this.state.code}
+              error={this.state.errors.code}
+              cssClass="fas fa-key"
+              label="Optional Code"
             />
             <button className="form__submit" type="submit">
               Sign Up

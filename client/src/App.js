@@ -18,6 +18,7 @@ import Reset from "./components/auth/Reset";
 
 // WRAP RESET IN WITH withRouter TO GET ACCESS TO URL PARAMS
 const ResetWithParams = withRouter(Reset);
+const LoginWithParams = withRouter(Login);
 
 class App extends Component {
   constructor() {
@@ -69,6 +70,16 @@ class App extends Component {
             path="/login"
             render={props => (
               <Login
+                setCurrentUser={this.setCurrentUser}
+                auth={this.state.auth}
+              />
+            )}
+          />
+          <Route
+            exact
+            path="/login/:token/:email"
+            render={props => (
+              <LoginWithParams
                 setCurrentUser={this.setCurrentUser}
                 auth={this.state.auth}
               />

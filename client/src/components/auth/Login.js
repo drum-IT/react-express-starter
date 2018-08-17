@@ -19,10 +19,27 @@ export default class Login extends Component {
     this.state = {
       email: "",
       password: "",
-      errors: {}
+      errors: {},
+      token: "",
+      verifyEmail: "",
+      messages: {}
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.loginUser = this.loginUser.bind(this);
+  }
+  componentDidMount() {
+    if (
+      this.props.match &&
+      this.props.match.params.token &&
+      this.props.match.params.email
+    ) {
+      const { token, email } = this.props.match.params;
+      this.setState({ token, verifyEmail: email });
+      axios
+        .get(`/api/user/verify/${token}/${email}`)
+        .then(response => this.setState({ messages: response.data }))
+        .catch(err => this.setState({ errors: err.response.data }));
+    }
   }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
@@ -76,6 +93,16 @@ export default class Login extends Component {
               <Link to="/register">Sign Up</Link>
               <Link to="/forgot">Forgot</Link>
             </div>
+            {this.state.errors.formError && (
+              <div className="form__message--error">
+                {this.state.errors.formError}
+              </div>
+            )}
+            {this.state.messages.formMessage && (
+              <div className="form__message">
+                {this.state.messages.formMessage}
+              </div>
+            )}
           </form>
         </div>
       </div>
