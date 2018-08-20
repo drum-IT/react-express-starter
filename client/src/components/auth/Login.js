@@ -4,9 +4,6 @@ import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
-// GET STYLES
-import formStyles from "./formStyles.css";
-
 // GET UTILITIES
 import setAuthToken from "../../util/setAuthToken";
 

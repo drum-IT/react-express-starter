@@ -21,7 +21,7 @@ import Landing from "./components/Landing";
 import Forgot from "./components/auth/Forgot";
 import Reset from "./components/auth/Reset";
 
-// WRAP RESET IN WITH withRouter TO GET ACCESS TO URL PARAMS
+// WRAP COMPONENETS IN WITHROUTHER TO ACCESS URL
 const ResetWithParams = withRouter(Reset);
 const LoginWithParams = withRouter(Login);
 

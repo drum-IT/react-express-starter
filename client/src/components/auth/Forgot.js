@@ -3,12 +3,6 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 
-// GET STYLES
-import formStyles from "./formStyles.css";
-
-// GET UTILITIES
-import setAuthToken from "../../util/setAuthToken";
-
 // GET COMPONENTS
 import TextFieldGroup from "../common/input/TextFieldGroup";
 

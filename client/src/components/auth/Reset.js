@@ -3,9 +3,6 @@ import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
-// GET STYLES
-import formStyles from "./formStyles.css";
-
 // GET UTILITIES
 import setAuthToken from "../../util/setAuthToken";
 
@@ -18,26 +15,33 @@ export default class Reset extends Component {
     this.state = {
       password: "",
       passwordConf: "",
-      errors: {}
+      errors: {},
+      token: "",
+      email: ""
     };
     this.handleInputChange = this.handleInputChange.bind(this);
     this.resetPassword = this.resetPassword.bind(this);
   }
   componentDidMount() {
+    // LOG OUT THE USER WHEN THIS COMPONENT MOUNTS
+    // WILL CLEAR AUTH HEADERS AND JWT IN LOCAL STORAGE
     this.props.logOutUser();
+
+    // GET THE RESET TOKEN AND USER EMAIL FROM THE URL ON MOUNT
+    const { token, email } = this.props.match.params;
+    this.setState({ token, email });
   }
   handleInputChange(event) {
     this.setState({ [event.target.name]: event.target.value });
   }
   resetPassword(event) {
     event.preventDefault();
-    const { token, email } = this.props.match.params;
     const userData = {
       password: this.state.password,
       passwordConf: this.state.passwordConf
     };
     axios
-      .post(`/api/user/reset/${token}/${email}`, userData)
+      .post(`/api/user/reset/${this.state.token}/${this.state.email}`, userData)
       .then(response => {
         const { token } = response.data;
         const decoded = jwtDecode(token);

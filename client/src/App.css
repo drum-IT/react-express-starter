@@ -1,5 +1,151 @@
+:root {
+  --darkgrey: rgba(0, 0, 0, 0.5);
+  --grey: rgba(0, 0, 0, 0.2);
+  --offwhite: rgba(230, 230, 230, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 html,
 body {
   font-family: sans-serif;
   height: 100%;
+}
+
+.container--column {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.link__list {
+  display: grid;
+  grid-gap: 5px;
+  justify-items: center;
+}
+
+.link {
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--darkgrey);
+}
+
+.container--center {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+}
+
+.form__container {
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.input__form {
+  background: white;
+  border-radius: 5px;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.form__title {
+  color: var(--darkgrey);
+  font-weight: 300;
+  margin: 0;
+}
+
+.form__group {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  margin: 20px 20px;
+}
+
+.field__label {
+  color: var(--darkgrey);
+  font-weight: 300;
+  margin-bottom: 5px;
+}
+
+.form__field {
+  background: none;
+  border: none;
+  color: var(--darkgrey);
+  height: 2.75rem;
+  padding: 0 12px;
+  width: 100%;
+}
+
+::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+  font-style: italic;
+}
+
+.form__field--text {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  font-weight: 300;
+}
+
+.form__field--error {
+  color: rgba(255, 0, 0, 0.7);
+  font-size: 0.7rem;
+  font-weight: 300;
+  margin-top: 68px;
+  position: absolute;
+}
+
+.form__field--message {
+  color: rgba(0, 200, 0, 0.7);
+  font-size: 0.7rem;
+  font-weight: 300;
+  margin-top: 68px;
+  position: absolute;
+}
+
+.form__field:focus {
+  outline: none;
+}
+
+.form__submit {
+  background: var(--grey);
+  border: none;
+  border-radius: 5px;
+  color: var(--darkgrey);
+  cursor: pointer;
+  font-weight: 300;
+  height: 3rem;
+  padding: 5px 10px;
+  outline: none;
+  width: calc(100% - 40px);
+}
+
+.form__links {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 300;
+  padding: 0 20px;
+  margin-top: 20px;
+}
+
+.form__links a {
+  color: var(--darkgrey);
+  text-decoration: none;
+}
+
+.form__message {
+  color: rgba(0, 200, 0, 0.7);
+  margin-top: 20px;
+  font-size: 1rem;
+}
+
+.form__message--error {
+  color: rgba(255, 0, 0, 0.7);
+  margin-top: 20px;
 }

@@ -21,6 +21,7 @@ const userRouter = express.Router();
 // GET THE USER MODEL
 const User = require("../../models/User");
 
+// FOR SENDING ACCOUNT VERIFICATION EMAIL
 function sendVerifyEmail(email, host) {
   const verificationToken = jwt.sign({ email }, process.env.JWTsecret, {});
   Mailer.sendEmail("verify", email, host, verificationToken);
@@ -76,6 +77,82 @@ userRouter.post("/register", (req, res) => {
           })
           .catch(err => console.log(err));
       });
+    });
+  });
+});
+
+// @route  GET api/user/verify
+// @desc   Verify a user account
+// @access Public
+userRouter.get("/verify/:token/:email", (req, res) => {
+  const { token, email } = req.params;
+  const messages = {};
+  if (!token) {
+    return res.status(400).json({ message: "Error. No token provided." });
+  }
+  if (!email) {
+    return res.status(400).json({ message: "Error. No email provided." });
+  }
+  return jwt.verify(token, process.env.JWTsecret, err => {
+    if (err) {
+      return res.status(500).json({ message: "Failed to authenticate token" });
+    }
+    return User.findOneAndUpdate(
+      { email },
+      { verified: true },
+      (updateErr, updatedUser) => {
+        if (updateErr) {
+          return res.status(400).json(updateErr);
+        }
+        Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
+        messages.formMessage = "Account verified!";
+        return res.json(messages);
+      }
+    );
+  });
+});
+
+// @route  POST api/user/login
+// @desc   Login a user and return JWT token
+// @access Public
+userRouter.post("/login", (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+  const { email, password } = req.body;
+  return User.findOne({ email }).then(user => {
+    if (!user) {
+      errors.email = "No account found with that email address.";
+      return res.status(404).json(errors);
+    }
+    if (!user.verified) {
+      const host =
+        process.env.NODE_ENV === "production"
+          ? req.headers.host
+          : req.headers["x-forwarded-host"];
+      sendVerifyEmail(user.email, host);
+      errors.email =
+        "You must verify your account before logging in. Please check your email.";
+      return res.status(400).json(errors);
+    }
+    return bcrypt.compare(password, user.password).then(isMatch => {
+      if (isMatch) {
+        const payload = {
+          id: user.id,
+          username: user.username
+        };
+        return jwt.sign(
+          payload,
+          process.env.JWTsecret,
+          { expiresIn: 3600 },
+          (err, token) => {
+            res.json({ success: true, token: `Bearer ${token}` });
+          }
+        );
+      }
+      errors.email = "Email address or password incorrect.";
+      return res.status(400).json(errors);
     });
   });
 });
@@ -156,8 +233,11 @@ userRouter.post("/reset/:token/:email", (req, res) => {
               return res.status(404).json({ error: "could not find user" });
             }
             messages.formMessage = "Password has been updated.";
-            // return res.json(messages);
-
+            const host =
+              process.env.NODE_ENV === "production"
+                ? req.headers.host
+                : req.headers["x-forwarded-host"];
+            Mailer.sendEmail("resetSuccess", updatedUser.email, host);
             const payload = {
               id: updatedUser.id,
               username: updatedUser.username
@@ -173,82 +253,6 @@ userRouter.post("/reset/:token/:email", (req, res) => {
           }
         );
       });
-    });
-  });
-});
-
-// @route  GET api/user/verify
-// @desc   Verify a user account
-// @access Public
-userRouter.get("/verify/:token/:email", (req, res) => {
-  const { token, email } = req.params;
-  const messages = {};
-  if (!token) {
-    return res.status(400).json({ message: "Error. No token provided." });
-  }
-  if (!email) {
-    return res.status(400).json({ message: "Error. No email provided." });
-  }
-  return jwt.verify(token, process.env.JWTsecret, err => {
-    if (err) {
-      return res.status(500).json({ message: "Failed to authenticate token" });
-    }
-    return User.findOneAndUpdate(
-      { email },
-      { verified: true },
-      (updateErr, updatedUser) => {
-        if (updateErr) {
-          return res.status(400).json(updateErr);
-        }
-        Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
-        messages.formMessage = "Account verified!";
-        return res.json(messages);
-      }
-    );
-  });
-});
-
-// @route  POST api/user/login
-// @desc   Login a user and return JWT token
-// @access Public
-userRouter.post("/login", (req, res) => {
-  const { errors, isValid } = validateLoginInput(req.body);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-  const { email, password } = req.body;
-  return User.findOne({ email }).then(user => {
-    if (!user) {
-      errors.email = "No account found with that email address.";
-      return res.status(404).json(errors);
-    }
-    if (!user.verified) {
-      const host =
-        process.env.NODE_ENV === "production"
-          ? req.headers.host
-          : req.headers["x-forwarded-host"];
-      sendVerifyEmail(user.email, host);
-      errors.email =
-        "You must verify your account before logging in. Please check your email.";
-      return res.status(400).json(errors);
-    }
-    return bcrypt.compare(password, user.password).then(isMatch => {
-      if (isMatch) {
-        const payload = {
-          id: user.id,
-          username: user.username
-        };
-        return jwt.sign(
-          payload,
-          process.env.JWTsecret,
-          { expiresIn: 3600 },
-          (err, token) => {
-            res.json({ success: true, token: `Bearer ${token}` });
-          }
-        );
-      }
-      errors.email = "Email address or password incorrect.";
-      return res.status(400).json(errors);
     });
   });
 });
