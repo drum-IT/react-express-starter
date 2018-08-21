@@ -17,7 +17,7 @@ import setAuthToken from "./util/setAuthToken";
 // GET COMPONENTS
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
-import Landing from "./components/Landing";
+import Header from "./components/layout/Header";
 import Forgot from "./components/auth/Forgot";
 import Reset from "./components/auth/Reset";
 
@@ -63,18 +63,8 @@ class App extends Component {
     return (
       <Router>
         <div className="App">
+          <Header user={this.state.user} logOut={this.logOutUser} />
           <Switch>
-            <Route
-              exact
-              path="/"
-              render={props => (
-                <Landing
-                  {...props}
-                  user={this.state.user}
-                  logOut={this.logOutUser}
-                />
-              )}
-            />
             <Route
               exact
               path="/login"
@@ -117,15 +107,6 @@ class App extends Component {
                   auth={this.state.auth}
                   setCurrentUser={this.setCurrentUser}
                   logOutUser={this.logOutUser}
-                />
-              )}
-            />
-            <Route
-              render={props => (
-                <Landing
-                  {...props}
-                  user={this.state.user}
-                  logOut={this.logOutUser}
                 />
               )}
             />

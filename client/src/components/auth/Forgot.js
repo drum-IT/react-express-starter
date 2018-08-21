@@ -51,35 +51,6 @@ export default class Forgot extends Component {
         errors={this.state.errors}
       />
     ) : (
-      // <div className="container--center">
-      //   <div className="form__container">
-      //     <form className="input__form" onSubmit={this.resetPassword}>
-      //       <h2 className="form__title">Forgot Password</h2>
-      //       <TextFieldGroup
-      //         type="email"
-      //         placeholder="email"
-      //         name="email"
-      //         onChange={this.handleInputChange}
-      //         value={this.state.email}
-      //         error={this.state.errors.email}
-      //         message={this.state.messages.email}
-      //         cssClass="fas fa-envelope"
-      //         label="Email Address"
-      //       />
-      //       <button className="form__submit" type="submit">
-      //         Reset Password
-      //       </button>
-      //       <div className="form__links">
-      //         <Link to="/">Home</Link>
-      //         <Link to="/register">Sign Up</Link>
-      //         <Link to="/login">Sign In</Link>
-      //       </div>
-      //       {this.state.errors.formError && (
-      //         <div className="form__error">{this.state.errors.formError}</div>
-      //       )}
-      //     </form>
-      //   </div>
-      // </div>
       <Redirect to="/" />
     );
   }
