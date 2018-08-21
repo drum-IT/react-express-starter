@@ -20,12 +20,13 @@ import Register from "./components/auth/Register";
 import Header from "./components/layout/Header";
 import Forgot from "./components/auth/Forgot";
 import Reset from "./components/auth/Reset";
+import Home from "./components/Home";
 
 // WRAP COMPONENETS IN WITHROUTHER TO ACCESS URL
 const ResetWithParams = withRouter(Reset);
 const LoginWithParams = withRouter(Login);
 
-class App extends Component {
+export default class App extends Component {
   constructor() {
     super();
     this.state = {
@@ -110,11 +111,10 @@ class App extends Component {
                 />
               )}
             />
+            <Route component={Home} />
           </Switch>
         </div>
       </Router>
     );
   }
 }
-
-export default App;
