@@ -167,13 +167,7 @@ userRouter.post("/forgot", (req, res) => {
     return res.status(400).json(errors);
   }
   const { email } = req.body;
-  const resetToken =
-    Math.random()
-      .toString(36)
-      .substring(2, 15) +
-    Math.random()
-      .toString(36)
-      .substring(2, 15);
+  const resetToken = jwt.sign({ email }, process.env.JWTsecret, {});
   const resetTime = Date.now() + 3600000;
   return User.findOneAndUpdate(
     { email },
@@ -208,50 +202,55 @@ userRouter.post("/reset/:token/:email", (req, res) => {
     return res.status(400).json(errors);
   }
   const { token, email } = req.params;
-  return User.findOne({ email, resetToken: token }, (err, foundUser) => {
-    if (!foundUser) {
-      errors.formError = "Reset link is not valid.";
-      return res.status(404).json(errors);
+  return jwt.verify(token, process.env.JWTsecret, err => {
+    if (err) {
+      return res.status(500).json({ message: "Failed to authenticate token" });
     }
-    if (foundUser.resetTime <= Date.now()) {
-      errors.formError = "Reset link has expired.";
-      return res.json(errors);
-    }
-    const { password } = req.body;
-    return bcrypt.genSalt(10, (genErr, salt) => {
-      if (genErr) throw genErr;
-      bcrypt.hash(password, salt, (hashErr, hash) => {
-        if (hashErr) throw hashErr;
-        User.findByIdAndUpdate(
-          foundUser.id,
-          { password: hash, resetToken: "", resetTime: Date.now() },
-          (updateErr, updatedUser) => {
-            if (updateErr) {
-              return res.json(updateErr);
-            }
-            if (!updatedUser) {
-              return res.status(404).json({ error: "could not find user" });
-            }
-            messages.formMessage = "Password has been updated.";
-            const host =
-              process.env.NODE_ENV === "production"
-                ? req.headers.host
-                : req.headers["x-forwarded-host"];
-            Mailer.sendEmail("resetSuccess", updatedUser.email, host);
-            const payload = {
-              id: updatedUser.id,
-              username: updatedUser.username
-            };
-            return jwt.sign(
-              payload,
-              process.env.JWTsecret,
-              { expiresIn: 3600 },
-              (err, updatedToken) => {
-                res.json({ success: true, token: `Bearer ${updatedToken}` });
+    return User.findOne({ email, resetToken: token }, (findErr, foundUser) => {
+      if (!foundUser || findErr) {
+        errors.formError = "There was an error.";
+        return res.status(404).json(errors);
+      }
+      if (foundUser.resetTime <= Date.now()) {
+        errors.formError = "Reset link has expired.";
+        return res.json(errors);
+      }
+      const { password } = req.body;
+      return bcrypt.genSalt(10, (genErr, salt) => {
+        if (genErr) throw genErr;
+        bcrypt.hash(password, salt, (hashErr, hash) => {
+          if (hashErr) throw hashErr;
+          User.findByIdAndUpdate(
+            foundUser.id,
+            { password: hash, resetToken: "", resetTime: Date.now() },
+            (updateErr, updatedUser) => {
+              if (updateErr) {
+                return res.json(updateErr);
               }
-            );
-          }
-        );
+              if (!updatedUser) {
+                return res.status(404).json({ error: "could not find user" });
+              }
+              messages.formMessage = "Password has been updated.";
+              const host =
+                process.env.NODE_ENV === "production"
+                  ? req.headers.host
+                  : req.headers["x-forwarded-host"];
+              Mailer.sendEmail("resetSuccess", updatedUser.email, host);
+              const payload = {
+                id: updatedUser.id,
+                username: updatedUser.username
+              };
+              return jwt.sign(
+                payload,
+                process.env.JWTsecret,
+                { expiresIn: 3600 },
+                (signErr, updatedToken) => {
+                  res.json({ success: true, token: `Bearer ${updatedToken}` });
+                }
+              );
+            }
+          );
+        });
       });
     });
   });

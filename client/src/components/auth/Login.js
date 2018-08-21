@@ -8,11 +8,12 @@ import jwtDecode from "jwt-decode";
 import setAuthToken from "../../util/setAuthToken";
 
 // GET COMPONENTS
-import TextFieldGroup from "../common/input/TextFieldGroup";
+import Form from "../common/input/Form";
 
 export default class Login extends Component {
   constructor(props) {
     super(props);
+    // STATE
     this.state = {
       email: "",
       password: "",
@@ -21,6 +22,24 @@ export default class Login extends Component {
       verifyEmail: "",
       messages: {}
     };
+    // FORM FIELDS
+    this.formFields = [
+      {
+        name: "email",
+        placeholder: "example@email.com",
+        type: "text",
+        label: "Email"
+      },
+      {
+        name: "password",
+        placeholder: "password",
+        type: "password",
+        label: "Password"
+      }
+    ];
+    // FORM LINKS
+    this.fieldLinks = [];
+    //FUNCTIONS
     this.handleInputChange = this.handleInputChange.bind(this);
     this.loginUser = this.loginUser.bind(this);
   }
@@ -45,6 +64,7 @@ export default class Login extends Component {
   loginUser(event) {
     event.preventDefault();
     const userData = { email: this.state.email, password: this.state.password };
+    console.log(userData);
     axios
       .post("/api/user/login", userData)
       .then(response => {
@@ -55,55 +75,23 @@ export default class Login extends Component {
         this.props.setCurrentUser(decoded);
         window.location.href = "/";
       })
-      .catch(err => this.setState({ errors: err.response.data }));
+      .catch(
+        err =>
+          !console.log(err.response.data) &&
+          this.setState({ errors: err.response.data })
+      );
   }
   render() {
     return !this.props.auth ? (
-      <div className="container--center">
-        <div className="form__container">
-          <form className="input__form" onSubmit={this.loginUser}>
-            <h2 className="form__title">Sign In</h2>
-            <TextFieldGroup
-              type="email"
-              placeholder="email"
-              name="email"
-              onChange={this.handleInputChange}
-              value={this.state.email}
-              error={this.state.errors.email}
-              cssClass="fas fa-envelope"
-              label="Email Address"
-            />
-            <TextFieldGroup
-              type="password"
-              placeholder="password"
-              name="password"
-              onChange={this.handleInputChange}
-              value={this.state.password}
-              error={this.state.errors.password}
-              cssClass="fas fa-key"
-              label="Password"
-            />
-            <button className="form__submit" type="submit">
-              Sign In
-            </button>
-            <div className="form__links">
-              <Link to="/">Home</Link>
-              <Link to="/register">Sign Up</Link>
-              <Link to="/forgot">Forgot</Link>
-            </div>
-            {this.state.errors.formError && (
-              <div className="form__message--error">
-                {this.state.errors.formError}
-              </div>
-            )}
-            {this.state.messages.formMessage && (
-              <div className="form__message">
-                {this.state.messages.formMessage}
-              </div>
-            )}
-          </form>
-        </div>
-      </div>
+      <Form
+        fields={this.formFields}
+        buttonLabel="Sign In"
+        title="Sign In"
+        links={this.formLinks}
+        onChange={this.handleInputChange}
+        onSubmit={this.loginUser}
+        errors={this.state.errors}
+      />
     ) : (
       <Redirect to="/" />
     );

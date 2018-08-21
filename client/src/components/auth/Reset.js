@@ -7,7 +7,7 @@ import jwtDecode from "jwt-decode";
 import setAuthToken from "../../util/setAuthToken";
 
 // GET COMPONENTS
-import TextFieldGroup from "../common/input/TextFieldGroup";
+import Form from "../common/input/Form";
 
 export default class Reset extends Component {
   constructor(props) {
@@ -19,6 +19,20 @@ export default class Reset extends Component {
       token: "",
       email: ""
     };
+    this.formFields = [
+      {
+        name: "password",
+        placeholder: "password",
+        type: "password",
+        label: "Password"
+      },
+      {
+        name: "passwordConf",
+        placeholder: "confirm password",
+        type: "password",
+        label: "Confirm Password"
+      }
+    ];
     this.handleInputChange = this.handleInputChange.bind(this);
     this.resetPassword = this.resetPassword.bind(this);
   }
@@ -56,44 +70,15 @@ export default class Reset extends Component {
   }
   render() {
     return (
-      <div className="container--center">
-        <div className="form__container">
-          <form className="input__form" onSubmit={this.resetPassword}>
-            <h2 className="form__title">Reset Password</h2>
-            <TextFieldGroup
-              type="password"
-              placeholder="password"
-              name="password"
-              onChange={this.handleInputChange}
-              value={this.state.password}
-              error={this.state.errors.password}
-              cssClass="fas fa-key"
-              label="Password"
-            />
-            <TextFieldGroup
-              type="password"
-              placeholder="confirm password"
-              name="passwordConf"
-              onChange={this.handleInputChange}
-              value={this.state.passwordConf}
-              error={this.state.errors.passwordConf}
-              cssClass="fas fa-key"
-              label="Confirm Password"
-            />
-            <button className="form__submit" type="submit">
-              Reset
-            </button>
-            <div className="form__links">
-              <Link to="/">Home</Link>
-              <Link to="/register">Sign Up</Link>
-              <Link to="/login">Sign In</Link>
-            </div>
-            {this.state.errors.formError && (
-              <div className="form__error">{this.state.errors.formError}</div>
-            )}
-          </form>
-        </div>
-      </div>
+      <Form
+        fields={this.formFields}
+        buttonLabel="Change Password"
+        title="Reset Password"
+        links={this.formLinks}
+        onChange={this.handleInputChange}
+        onSubmit={this.resetPassword}
+        errors={this.state.errors}
+      />
     );
   }
 }

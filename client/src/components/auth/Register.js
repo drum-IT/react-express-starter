@@ -3,7 +3,7 @@ import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET COMPONENTS
-import TextFieldGroup from "../common/input/TextFieldGroup";
+import Form from "../common/input/Form";
 
 export default class Register extends Component {
   constructor(props) {
@@ -16,6 +16,39 @@ export default class Register extends Component {
       code: "",
       errors: {}
     };
+    // FORM FIELDS
+    this.formFields = [
+      {
+        name: "username",
+        placeholder: "username",
+        type: "text",
+        label: "Username"
+      },
+      {
+        name: "email",
+        placeholder: "example@email.com",
+        type: "email",
+        label: "Email"
+      },
+      {
+        name: "password",
+        placeholder: "password",
+        type: "password",
+        label: "Password"
+      },
+      {
+        name: "passwordConf",
+        placeholder: "confirm password",
+        type: "password",
+        label: "Confirm Password"
+      },
+      {
+        name: "code",
+        placeholder: "optional",
+        type: "password",
+        label: "Optional Code"
+      }
+    ];
     this.handleInputChange = this.handleInputChange.bind(this);
     this.registerUser = this.registerUser.bind(this);
   }
@@ -40,70 +73,15 @@ export default class Register extends Component {
   }
   render() {
     return !this.props.auth ? (
-      <div className="container--center">
-        <div className="form__container">
-          <form className="input__form" onSubmit={this.registerUser}>
-            <h2 className="form__title">Sign Up</h2>
-            <TextFieldGroup
-              type="text"
-              placeholder="username"
-              name="username"
-              onChange={this.handleInputChange}
-              value={this.state.username}
-              error={this.state.errors.username}
-              cssClass="fas fa-user"
-              label="Username"
-            />
-            <TextFieldGroup
-              type="email"
-              placeholder="email"
-              name="email"
-              onChange={this.handleInputChange}
-              value={this.state.email}
-              error={this.state.errors.email}
-              cssClass="fas fa-envelope"
-              label="Email Address"
-            />
-            <TextFieldGroup
-              type="password"
-              placeholder="password"
-              name="password"
-              onChange={this.handleInputChange}
-              value={this.state.password}
-              error={this.state.errors.password}
-              cssClass="fas fa-key"
-              label="Password"
-            />
-            <TextFieldGroup
-              type="password"
-              placeholder="confirm password"
-              name="passwordConf"
-              onChange={this.handleInputChange}
-              value={this.state.passwordConf}
-              error={this.state.errors.passwordConf}
-              cssClass="fas fa-key"
-              label="Confirm Password"
-            />
-            <TextFieldGroup
-              type="password"
-              placeholder="optional"
-              name="code"
-              onChange={this.handleInputChange}
-              value={this.state.code}
-              error={this.state.errors.code}
-              cssClass="fas fa-key"
-              label="Optional Code"
-            />
-            <button className="form__submit" type="submit">
-              Sign Up
-            </button>
-            <div className="form__links">
-              <Link to="/">Home</Link>
-              <Link to="/login">Sign In</Link>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Form
+        fields={this.formFields}
+        buttonLabel="Sign Up"
+        title="Sign Up"
+        links={this.formLinks}
+        onChange={this.handleInputChange}
+        onSubmit={this.registerUser}
+        errors={this.state.errors}
+      />
     ) : (
       <Redirect to="/" />
     );

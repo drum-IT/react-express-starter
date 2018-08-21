@@ -4,7 +4,7 @@ import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET COMPONENTS
-import TextFieldGroup from "../common/input/TextFieldGroup";
+import Form from "../common/input/Form";
 
 export default class Forgot extends Component {
   constructor(props) {
@@ -14,6 +14,14 @@ export default class Forgot extends Component {
       errors: {},
       messages: {}
     };
+    this.formFields = [
+      {
+        name: "email",
+        placeholder: "example@email.com",
+        type: "email",
+        label: "Email"
+      }
+    ];
     this.handleInputChange = this.handleInputChange.bind(this);
     this.resetPassword = this.resetPassword.bind(this);
   }
@@ -33,36 +41,45 @@ export default class Forgot extends Component {
   }
   render() {
     return !this.props.auth ? (
-      <div className="container--center">
-        <div className="form__container">
-          <form className="input__form" onSubmit={this.resetPassword}>
-            <h2 className="form__title">Forgot Password</h2>
-            <TextFieldGroup
-              type="email"
-              placeholder="email"
-              name="email"
-              onChange={this.handleInputChange}
-              value={this.state.email}
-              error={this.state.errors.email}
-              message={this.state.messages.email}
-              cssClass="fas fa-envelope"
-              label="Email Address"
-            />
-            <button className="form__submit" type="submit">
-              Reset Password
-            </button>
-            <div className="form__links">
-              <Link to="/">Home</Link>
-              <Link to="/register">Sign Up</Link>
-              <Link to="/login">Sign In</Link>
-            </div>
-            {this.state.errors.formError && (
-              <div className="form__error">{this.state.errors.formError}</div>
-            )}
-          </form>
-        </div>
-      </div>
+      <Form
+        fields={this.formFields}
+        buttonLabel="Send Email"
+        title="Forgot Password"
+        links={this.formLinks}
+        onChange={this.handleInputChange}
+        onSubmit={this.resetPassword}
+        errors={this.state.errors}
+      />
     ) : (
+      // <div className="container--center">
+      //   <div className="form__container">
+      //     <form className="input__form" onSubmit={this.resetPassword}>
+      //       <h2 className="form__title">Forgot Password</h2>
+      //       <TextFieldGroup
+      //         type="email"
+      //         placeholder="email"
+      //         name="email"
+      //         onChange={this.handleInputChange}
+      //         value={this.state.email}
+      //         error={this.state.errors.email}
+      //         message={this.state.messages.email}
+      //         cssClass="fas fa-envelope"
+      //         label="Email Address"
+      //       />
+      //       <button className="form__submit" type="submit">
+      //         Reset Password
+      //       </button>
+      //       <div className="form__links">
+      //         <Link to="/">Home</Link>
+      //         <Link to="/register">Sign Up</Link>
+      //         <Link to="/login">Sign In</Link>
+      //       </div>
+      //       {this.state.errors.formError && (
+      //         <div className="form__error">{this.state.errors.formError}</div>
+      //       )}
+      //     </form>
+      //   </div>
+      // </div>
       <Redirect to="/" />
     );
   }
