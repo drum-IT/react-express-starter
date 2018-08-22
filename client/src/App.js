@@ -21,24 +21,26 @@ import Header from "./components/layout/Header";
 import Forgot from "./components/auth/Forgot";
 import Reset from "./components/auth/Reset";
 import Home from "./components/Home";
-
-// WRAP COMPONENETS IN WITHROUTHER TO ACCESS URL
-const ResetWithParams = withRouter(Reset);
-const LoginWithParams = withRouter(Login);
+import Messages from "./components/common/messages/Messages";
 
 export default class App extends Component {
   constructor() {
     super();
     this.state = {
       user: {},
-      auth: false
+      auth: false,
+      errors: {},
+      messages: []
     };
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.logOutUser = this.logOutUser.bind(this);
+    this.handleResponse = this.handleResponse.bind(this);
+    this.clearMessage = this.clearMessage.bind(this);
   }
   // CHECK FOR EXISTING JWT IN LOCAL STORAGE
   // USE IT TO SER CURRENT USER, OR CLEAR USER AND AUTH HEADER IF EXPIRED
   componentDidMount() {
+    this.setState({ messages: [] });
     if (localStorage.jwtToken) {
       const decoded = jwtDecode(localStorage.jwtToken);
       const currentTime = Date.now() / 1000;
@@ -60,11 +62,27 @@ export default class App extends Component {
     localStorage.removeItem("jwtToken");
     this.setState({ user: {}, auth: false });
   }
+  handleResponse(data) {
+    this.setState({ messages: data.messages });
+  }
+  clearMessage(event) {
+    event.preventDefault();
+    const clearedMessage = event.target.parentNode.children[0].innerText;
+    this.setState({
+      messages: this.state.messages.filter(
+        message => message !== clearedMessage
+      )
+    });
+  }
   render() {
     return (
       <Router>
         <div className="App">
           <Header user={this.state.user} logOut={this.logOutUser} />
+          <Messages
+            clearMessage={this.clearMessage}
+            messages={this.state.messages}
+          />
           <Switch>
             <Route
               exact
@@ -74,6 +92,7 @@ export default class App extends Component {
                   {...props}
                   setCurrentUser={this.setCurrentUser}
                   auth={this.state.auth}
+                  handleResponse={this.handleResponse}
                 />
               )}
             />
@@ -81,33 +100,48 @@ export default class App extends Component {
               exact
               path="/login/:token/:email"
               render={props => (
-                <LoginWithParams
+                <Login
                   {...props}
                   setCurrentUser={this.setCurrentUser}
                   auth={this.state.auth}
                   logOutUser={this.logOutUser}
+                  handleResponse={this.handleResponse}
                 />
               )}
             />
             <Route
               exact
               path="/register"
-              render={props => <Register {...props} auth={this.state.auth} />}
+              render={props => (
+                <Register
+                  {...props}
+                  auth={this.state.auth}
+                  register={this.registerUser}
+                  handleResponse={this.handleResponse}
+                />
+              )}
             />
             <Route
               exact
               path="/forgot"
-              render={props => <Forgot {...props} auth={this.state.auth} />}
+              render={props => (
+                <Forgot
+                  {...props}
+                  auth={this.state.auth}
+                  handleResponse={this.handleResponse}
+                />
+              )}
             />
             <Route
               exact
               path="/reset/:token/:email"
               render={props => (
-                <ResetWithParams
+                <Reset
                   {...props}
                   auth={this.state.auth}
                   setCurrentUser={this.setCurrentUser}
                   logOutUser={this.logOutUser}
+                  handleResponse={this.handleResponse}
                 />
               )}
             />

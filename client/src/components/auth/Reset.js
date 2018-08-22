@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
@@ -17,7 +17,8 @@ export default class Reset extends Component {
       passwordConf: "",
       errors: {},
       token: "",
-      email: ""
+      email: "",
+      reset: false
     };
     this.formFields = [
       {
@@ -62,14 +63,15 @@ export default class Reset extends Component {
         localStorage.setItem("jwtToken", token);
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        window.location.href = "/";
+        this.props.handleResponse(response.data);
+        this.setState({ reset: true });
       })
       .catch(error => {
         this.setState({ errors: error.response.data });
       });
   }
   render() {
-    return (
+    return !this.state.reset ? (
       <Form
         fields={this.formFields}
         buttonLabel="Change Password"
@@ -79,6 +81,8 @@ export default class Reset extends Component {
         onSubmit={this.resetPassword}
         errors={this.state.errors}
       />
+    ) : (
+      <Redirect to="/" />
     );
   }
 }

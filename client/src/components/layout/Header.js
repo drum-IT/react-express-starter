@@ -13,10 +13,10 @@ export default class Header extends Component {
           </nav>
         ) : (
           <nav>
-            <Link to="/profiles/current">My Profile</Link>
-            <a href="#" onClick={this.props.logOut}>
+            {/* <Link to="/profiles/current">My Profile</Link> */}
+            <Link to="/" onClick={this.props.logOut}>
               Sign Out
-            </a>
+            </Link>
           </nav>
         )}
       </header>

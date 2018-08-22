@@ -73,7 +73,10 @@ userRouter.post("/register", (req, res) => {
                 ? req.headers.host
                 : req.headers["x-forwarded-host"];
             sendVerifyEmail(email, host);
-            res.json(savedUser);
+            res.json({
+              savedUser,
+              messages: ["Please check your email."]
+            });
           })
           .catch(err => console.log(err));
       });
@@ -86,7 +89,7 @@ userRouter.post("/register", (req, res) => {
 // @access Public
 userRouter.get("/verify/:token/:email", (req, res) => {
   const { token, email } = req.params;
-  const messages = {};
+  const messages = [];
   if (!token) {
     return res.status(400).json({ message: "Error. No token provided." });
   }
@@ -105,8 +108,8 @@ userRouter.get("/verify/:token/:email", (req, res) => {
           return res.status(400).json(updateErr);
         }
         Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
-        messages.formMessage = "Account verified!";
-        return res.json(messages);
+        messages.push("Account verified!");
+        return res.json({ messages });
       }
     );
   });
@@ -162,7 +165,7 @@ userRouter.post("/login", (req, res) => {
 // @access Public
 userRouter.post("/forgot", (req, res) => {
   const { errors, isValid } = validateForgotInput(req.body);
-  const messages = {};
+  const messages = [];
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -186,8 +189,8 @@ userRouter.post("/forgot", (req, res) => {
           ? req.headers.host
           : req.headers["x-forwarded-host"];
       Mailer.sendEmail("reset", updatedUser.email, host, resetToken);
-      messages.email = "Please check your email.";
-      return res.json(messages);
+      messages.push("Please check your email.");
+      return res.json({ messages });
     }
   );
 });
@@ -197,7 +200,7 @@ userRouter.post("/forgot", (req, res) => {
 // @access Public
 userRouter.post("/reset/:token/:email", (req, res) => {
   const { errors, isValid } = validateResetInput(req.body);
-  const messages = {};
+  const messages = [];
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -230,7 +233,7 @@ userRouter.post("/reset/:token/:email", (req, res) => {
               if (!updatedUser) {
                 return res.status(404).json({ error: "could not find user" });
               }
-              messages.formMessage = "Password has been updated.";
+              messages.push("Password has been updated.");
               const host =
                 process.env.NODE_ENV === "production"
                   ? req.headers.host
@@ -245,7 +248,11 @@ userRouter.post("/reset/:token/:email", (req, res) => {
                 process.env.JWTsecret,
                 { expiresIn: 3600 },
                 (signErr, updatedToken) => {
-                  res.json({ success: true, token: `Bearer ${updatedToken}` });
+                  res.json({
+                    success: true,
+                    token: `Bearer ${updatedToken}`,
+                    messages
+                  });
                 }
               );
             }
@@ -256,7 +263,7 @@ userRouter.post("/reset/:token/:email", (req, res) => {
   });
 });
 
-// @route  POST api/user/current
+// @route  GET api/user/current
 // @desc   Get the currently logged in user
 // @access Private
 userRouter.get(

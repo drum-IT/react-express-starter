@@ -1,6 +1,6 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET COMPONENTS
@@ -12,7 +12,7 @@ export default class Forgot extends Component {
     this.state = {
       email: "",
       errors: {},
-      messages: {}
+      emailSent: false
     };
     this.formFields = [
       {
@@ -34,13 +34,13 @@ export default class Forgot extends Component {
     axios
       .post("/api/user/forgot", userData)
       .then(response => {
-        this.setState({ messages: response.data, errors: {} });
-        <Redirect to="/" />;
+        this.props.handleResponse(response.data);
+        this.setState({ emailSent: true });
       })
-      .catch(err => this.setState({ messages: {}, errors: err.response.data }));
+      .catch(err => this.setState({ errors: err.response.data }));
   }
   render() {
-    return !this.props.auth ? (
+    return !this.props.auth && !this.state.emailSent ? (
       <Form
         fields={this.formFields}
         buttonLabel="Send Email"

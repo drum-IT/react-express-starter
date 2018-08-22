@@ -1,6 +1,6 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 
@@ -54,7 +54,7 @@ export default class Login extends Component {
       this.setState({ token, verifyEmail: email });
       axios
         .get(`/api/user/verify/${token}/${email}`)
-        .then(response => this.setState({ messages: response.data }))
+        .then(response => this.props.handleResponse(response.data))
         .catch(err => this.setState({ errors: err.response.data }));
     }
   }
@@ -64,7 +64,6 @@ export default class Login extends Component {
   loginUser(event) {
     event.preventDefault();
     const userData = { email: this.state.email, password: this.state.password };
-    console.log(userData);
     axios
       .post("/api/user/login", userData)
       .then(response => {
@@ -73,13 +72,10 @@ export default class Login extends Component {
         localStorage.setItem("jwtToken", token);
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        window.location.href = "/";
+        this.props.handleResponse(response.data);
+        <Redirect to="/" />;
       })
-      .catch(
-        err =>
-          !console.log(err.response.data) &&
-          this.setState({ errors: err.response.data })
-      );
+      .catch(err => this.setState({ errors: err.response.data }));
   }
   render() {
     return !this.props.auth ? (

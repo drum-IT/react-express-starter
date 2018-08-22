@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET COMPONENTS
@@ -14,7 +14,8 @@ export default class Register extends Component {
       password: "",
       passwordConf: "",
       code: "",
-      errors: {}
+      errors: {},
+      registered: false
     };
     // FORM FIELDS
     this.formFields = [
@@ -66,13 +67,16 @@ export default class Register extends Component {
     };
     axios
       .post("/api/user/register", userData)
-      .then(response => (window.location.href = "/login"))
+      .then(response => {
+        this.props.handleResponse(response.data);
+        this.setState({ registered: true });
+      })
       .catch(error => {
         this.setState({ errors: error.response.data });
       });
   }
   render() {
-    return !this.props.auth ? (
+    return !this.props.auth && !this.state.registered ? (
       <Form
         fields={this.formFields}
         buttonLabel="Sign Up"
