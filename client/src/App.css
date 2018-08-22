@@ -22,24 +22,12 @@ body {
 }
 
 .message {
-  align-items: center;
   background: var(--grey);
   border-radius: 10px;
   color: var(--darkgrey);
-  display: flex;
+  cursor: pointer;
   margin: 0 auto;
   padding: 10px;
-}
-
-.message button {
-  background: none;
-  border: none;
-  color: var(--darkgrey);
-  cursor: pointer;
-  font-weight: 300;
-  margin-left: 20px;
-  outline: none;
-  padding: 0;
 }
 
 /* HEADER */

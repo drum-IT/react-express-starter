@@ -120,6 +120,7 @@ userRouter.get("/verify/:token/:email", (req, res) => {
 // @access Public
 userRouter.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
+  const messages = [];
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -135,8 +136,7 @@ userRouter.post("/login", (req, res) => {
           ? req.headers.host
           : req.headers["x-forwarded-host"];
       sendVerifyEmail(user.email, host);
-      errors.email =
-        "You must verify your account before logging in. Please check your email.";
+      errors.email = "You must verify your account. Please check your email.";
       return res.status(400).json(errors);
     }
     return bcrypt.compare(password, user.password).then(isMatch => {

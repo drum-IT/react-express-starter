@@ -67,7 +67,7 @@ export default class App extends Component {
   }
   clearMessage(event) {
     event.preventDefault();
-    const clearedMessage = event.target.parentNode.children[0].innerText;
+    const clearedMessage = event.target.innerText;
     this.setState({
       messages: this.state.messages.filter(
         message => message !== clearedMessage
