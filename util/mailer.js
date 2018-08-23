@@ -49,6 +49,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   // INITIALIZE MESSAGE OBJECT
   let message;
+  let link;
   // CHECK FOR MESSAGE TYPE, COMPELTE THE MESSAGE OBJECT, SEND MESSAGE
   switch (type) {
     case "verify":
@@ -70,6 +71,9 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
           </div>
         `
       };
+      link = `${
+        process.env.NODE_ENV === "production" ? "https" : "http"
+      }://${host}/login/${token}/${emailAddress}`;
       break;
     case "verified":
       message = {
@@ -88,6 +92,9 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
           </div>
         `
       };
+      link = `${
+        process.env.NODE_ENV === "production" ? "https" : "http"
+      }://${host}/login}`;
       break;
     case "reset":
       message = {
@@ -107,6 +114,9 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
           </div>
         `
       };
+      link = `${
+        process.env.NODE_ENV === "production" ? "https" : "http"
+      }://${host}/reset/${token}/${emailAddress}`;
       break;
     case "resetSuccess":
       message = {
@@ -128,6 +138,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
   }
   if (process.env.NODE_ENV !== "production") {
     console.log(message);
+    console.log(link);
   } else {
     sgMail.send(message);
   }

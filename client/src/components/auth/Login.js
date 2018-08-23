@@ -73,7 +73,6 @@ export default class Login extends Component {
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
         this.props.handleResponse(response.data);
-        <Redirect to="/" />;
       })
       .catch(err => this.setState({ errors: err.response.data }));
   }
@@ -89,7 +88,7 @@ export default class Login extends Component {
         errors={this.state.errors}
       />
     ) : (
-      <Redirect to="/" />
+      <Redirect to="/profile" />
     );
   }
 }

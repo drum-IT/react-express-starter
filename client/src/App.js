@@ -1,11 +1,6 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  withRouter,
-  Switch
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 
 // GET STYLESHEETS
@@ -22,6 +17,7 @@ import Forgot from "./components/auth/Forgot";
 import Reset from "./components/auth/Reset";
 import Home from "./components/Home";
 import Messages from "./components/common/messages/Messages";
+import Profile from "./components/Profile";
 
 export default class App extends Component {
   constructor() {
@@ -37,6 +33,7 @@ export default class App extends Component {
     this.handleResponse = this.handleResponse.bind(this);
     this.clearMessage = this.clearMessage.bind(this);
   }
+  // CLEAR ANY EXISTING UI MESSAGES
   // CHECK FOR EXISTING JWT IN LOCAL STORAGE
   // USE IT TO SER CURRENT USER, OR CLEAR USER AND AUTH HEADER IF EXPIRED
   componentDidMount() {
@@ -62,12 +59,14 @@ export default class App extends Component {
     localStorage.removeItem("jwtToken");
     this.setState({ user: {}, auth: false });
   }
+  // THE API RETURNS STANDARDIZED ERRORS AND MESSAGES
+  // THIS FUNCTION TAKES IN REPOSNES FROM EVERY API CALL AND SETS ERRORS/MESSAGES
   handleResponse(data) {
     this.setState({ messages: data.messages });
   }
-  clearMessage(event) {
-    event.preventDefault();
-    const clearedMessage = event.target.innerText;
+  // ERRORS AND MESSAGES CAN BE CLICKED TO CLEAR THEM
+  // THIS FUNCTION HANDLES THAT
+  clearMessage(clearedMessage) {
     this.setState({
       messages: this.state.messages.filter(
         message => message !== clearedMessage
@@ -145,7 +144,22 @@ export default class App extends Component {
                 />
               )}
             />
-            <Route component={Home} />
+            <Route
+              exact
+              path="/profile"
+              render={props => (
+                <Profile
+                  {...props}
+                  id={this.state.user.id}
+                  handleResponse={this.handleResponse}
+                  logOut={this.logOutUser}
+                  auth={this.state.auth}
+                />
+              )}
+            />
+            <Route
+              render={props => <Home {...props} auth={this.state.auth} />}
+            />
           </Switch>
         </div>
       </Router>

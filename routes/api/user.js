@@ -3,6 +3,7 @@
 // GET DEPENDENCIES
 const bcrypt = require("bcrypt");
 const express = require("express");
+const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
@@ -51,10 +52,16 @@ userRouter.post("/register", (req, res) => {
     if (errors.username || errors.email) {
       return res.status(400).json(errors);
     }
+    const avatar = gravatar.url(
+      req.body.email,
+      { s: "500", r: "pg", d: "retro" },
+      true
+    );
     const newUser = new User({
       email: req.body.email,
       password: req.body.password,
-      username: req.body.username
+      username: req.body.username,
+      avatar
     });
     return bcrypt.genSalt(10, (genErr, salt) => {
       if (genErr) throw genErr;
@@ -63,6 +70,7 @@ userRouter.post("/register", (req, res) => {
         newUser.password = hash;
         if (req.body.code === process.env.ADMIN_CODE) {
           newUser.isAdmin = true;
+          newUser.verified = true;
         }
         newUser
           .save()
@@ -120,7 +128,7 @@ userRouter.get("/verify/:token/:email", (req, res) => {
 // @access Public
 userRouter.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
-  const messages = [];
+  // const messages = [];
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -270,9 +278,26 @@ userRouter.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.json({
-      id: req.user.id,
-      email: req.user.email
+    User.findById(req.user.id, "username email avatar", (err, foundUser) => {
+      if (err) {
+        return res.json(err);
+      }
+      return res.json(foundUser);
+    });
+  }
+);
+
+userRouter.delete(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const messages = [];
+    User.findByIdAndRemove(req.user.id, err => {
+      if (err) {
+        return res.json(err);
+      }
+      messages.push("Account deleted.");
+      return res.json({ messages });
     });
   }
 );

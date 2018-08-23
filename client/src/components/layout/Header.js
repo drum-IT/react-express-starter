@@ -5,7 +5,9 @@ export default class Header extends Component {
   render() {
     return (
       <header>
-        <h1>REB</h1>
+        <Link className="logo" to="/">
+          REB
+        </Link>
         {!this.props.user.username ? (
           <nav>
             <Link to="/login">Sign In</Link>
@@ -13,7 +15,7 @@ export default class Header extends Component {
           </nav>
         ) : (
           <nav>
-            {/* <Link to="/profiles/current">My Profile</Link> */}
+            <Link to="/profile">My Profile</Link>
             <Link to="/" onClick={this.props.logOut}>
               Sign Out
             </Link>
