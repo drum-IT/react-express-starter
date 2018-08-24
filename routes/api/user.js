@@ -278,11 +278,42 @@ userRouter.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    User.findById(req.user.id, "username email avatar", (err, foundUser) => {
-      if (err) {
-        return res.json(err);
+    User.findById(
+      req.user.id,
+      "username email avatar isAdmin",
+      (err, foundUser) => {
+        if (err) {
+          return res.json(err);
+        }
+        return res.json(foundUser);
       }
-      return res.json(foundUser);
+    );
+  }
+);
+
+userRouter.get(
+  "/all",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    User.findById(req.user.id, (userErr, foundUser) => {
+      console.log(foundUser);
+      if (userErr || !foundUser.isAdmin) {
+        errors.admin = "Error while verifying admin rights.";
+        return res.json(errors);
+      }
+      return User.find(
+        // { _id: { $ne: req.user.id } },
+        {},
+        "username email avatar isAdmin verified created",
+        (usersErr, foundUsers) => {
+          if (usersErr) {
+            errors.users = "There was an error finding the users";
+            return res.json(errors);
+          }
+          return res.json(foundUsers);
+        }
+      );
     });
   }
 );

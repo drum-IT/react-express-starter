@@ -166,7 +166,7 @@ input:focus {
 /* PROFILES */
 
 .profile__container {
-  margin: 50px auto 0 auto;
+  margin: 50px auto 75px auto;
   max-width: 500px;
   width: calc(100% - 40px);
 }
@@ -238,6 +238,7 @@ input:focus {
   margin: 10px;
   outline: none;
   padding: 10px;
+  text-decoration: none;
 }
 
 .btn--danger {
@@ -286,6 +287,46 @@ input:focus {
 .btn--standard {
   background-color: #abbfd7;
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* USER LIST */
+
+.user__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 250px);
+  grid-gap: 30px;
+  margin: 0 20px 75px 20px;
+  justify-content: center;
+}
+
+/* .user__list:hover .user__card {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+} */
+
+/* .user__list:hover .user__card:hover {
+  box-shadow: 0 7px 10px rgba(0, 0, 0, 0.2);
+  margin: -1px 0 1px 0;
+} */
+
+.user__card {
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  color: var(--darkgrey);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 200ms;
+}
+
+.user__card:hover {
+  box-shadow: 0 7px 10px rgba(0, 0, 0, 0.2);
+  margin: -2px 0 2px 0;
+}
+
+.user__card img {
+  border-radius: 5px 5px 0 0;
+  width: 100%;
 }
 
 @media only screen and (max-width: 410px) {

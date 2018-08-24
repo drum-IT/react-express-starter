@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { timingSafeEqual } from "crypto";
 
 export default class Message extends Component {
   constructor() {
@@ -8,14 +7,20 @@ export default class Message extends Component {
       classes: "message hidden"
     };
     this.clearMessage = this.clearMessage.bind(this);
+    this.showTimer = undefined;
+    this.clearTimer = undefined;
   }
   componentDidMount() {
-    setTimeout(() => {
+    this.clearTimer = setTimeout(() => {
       this.clearMessage();
     }, 5000);
-    setTimeout(() => {
+    this.showTimer = setTimeout(() => {
       this.setState({ classes: "message" });
     }, 10);
+  }
+  componentWillUnmount() {
+    clearTimeout(this.clearTimer);
+    clearTimeout(this.showTimer);
   }
   clearMessage() {
     this.setState({ classes: "message hidden" });

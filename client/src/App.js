@@ -10,14 +10,15 @@ import "./App.css";
 import setAuthToken from "./util/setAuthToken";
 
 // GET COMPONENTS
-import Login from "./components/auth/Login";
-import Register from "./components/auth/Register";
-import Header from "./components/layout/Header";
+import Admin from "./components/Admin";
 import Forgot from "./components/auth/Forgot";
-import Reset from "./components/auth/Reset";
+import Header from "./components/layout/Header";
 import Home from "./components/Home";
+import Login from "./components/auth/Login";
 import Messages from "./components/common/messages/Messages";
 import Profile from "./components/Profile";
+import Register from "./components/auth/Register";
+import Reset from "./components/auth/Reset";
 
 export default class App extends Component {
   constructor() {
@@ -156,6 +157,11 @@ export default class App extends Component {
                   auth={this.state.auth}
                 />
               )}
+            />
+            <Route
+              exact
+              path="/admin"
+              render={props => <Admin {...props} id={this.state.user.id} />}
             />
             <Route
               render={props => <Home {...props} auth={this.state.auth} />}

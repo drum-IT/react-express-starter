@@ -6,12 +6,16 @@ export default class Messages extends Component {
   componentDidMount() {
     const container = document.getElementById("message-container");
     const height = container ? container.clientHeight : 0;
-    container ? (container.style.marginBottom = `-${height}px`) : 0;
+    if (container) {
+      container.style.marginBottom = `-${height}px`;
+    }
   }
   componentDidUpdate() {
     const container = document.getElementById("message-container");
     const height = container ? container.clientHeight : 0;
-    container ? (container.style.marginBottom = `-${height}px`) : 0;
+    if (container) {
+      container.style.marginBottom = `-${height}px`;
+    }
   }
   render() {
     return this.props.messages ? (

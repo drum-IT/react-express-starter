@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import axios from "axios";
 
 import Spinner from "./common/Spinner";
@@ -61,6 +61,11 @@ export default class Profile extends Component {
             <p>{user.email}</p>
           </div>
           <div className="profile__controls">
+            {this.state.user.isAdmin ? (
+              <Link to="/admin" className="btn">
+                Admin Tools
+              </Link>
+            ) : null}
             <button id="delete" className="btn" onClick={this.deleteAccount}>
               Delete Account
             </button>
