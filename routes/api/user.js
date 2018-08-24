@@ -292,26 +292,28 @@ userRouter.get(
 );
 
 userRouter.get(
-  "/all",
+  "/all/:page",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     const errors = {};
+    const { page } = req.params;
     User.findById(req.user.id, (userErr, foundUser) => {
-      console.log(foundUser);
       if (userErr || !foundUser.isAdmin) {
         errors.admin = "Error while verifying admin rights.";
         return res.json(errors);
       }
       return User.find(
-        // { _id: { $ne: req.user.id } },
-        {},
+        { _id: { $ne: req.user.id } },
         "username email avatar isAdmin verified created",
+        { skip: (page - 1) * 10, limit: 10, sort: { username: "asc" } },
         (usersErr, foundUsers) => {
           if (usersErr) {
             errors.users = "There was an error finding the users";
             return res.json(errors);
           }
-          return res.json(foundUsers);
+          User.countDocuments({ _id: { $ne: req.user.id } }, (err, count) => {
+            return res.json({ foundUsers, count });
+          });
         }
       );
     });
