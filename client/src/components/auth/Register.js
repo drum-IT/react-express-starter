@@ -68,7 +68,9 @@ export default class Register extends Component {
     axios
       .post("/api/user/register", userData)
       .then(response => {
-        this.props.handleResponse(response.data);
+        if (response.data.appOutput) {
+          this.props.handleResponse(response.data.appOutput);
+        }
         this.setState({ registered: true });
       })
       .catch(error => {

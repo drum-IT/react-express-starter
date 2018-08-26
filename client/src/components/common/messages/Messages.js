@@ -20,6 +20,14 @@ export default class Messages extends Component {
   render() {
     return this.props.messages ? (
       <div id="message-container" className="messages">
+        {this.props.errors.map(error => (
+          <Message
+            key={error}
+            message={error}
+            clearMessage={this.props.clearMessage}
+            error={true}
+          />
+        ))}
         {this.props.messages.map(message => (
           <Message
             key={message}

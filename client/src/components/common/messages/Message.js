@@ -25,12 +25,16 @@ export default class Message extends Component {
   clearMessage() {
     this.setState({ classes: "message hidden" });
     setTimeout(() => {
-      this.props.clearMessage(this.props.message);
+      this.props.clearMessage(this.props.message, this.props.error);
     }, 200);
   }
   render() {
+    let classes = this.state.classes;
+    if (this.props.error) {
+      classes = this.state.classes + " app__error";
+    }
     return (
-      <div className={this.state.classes} onClick={this.clearMessage}>
+      <div className={classes} onClick={this.clearMessage}>
         {this.props.message}
       </div>
     );

@@ -1,6 +1,5 @@
 // GET DEPENDENCIES
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
 import axios from "axios";
 
 // GET COMPONENTS
@@ -34,10 +33,18 @@ export default class Forgot extends Component {
     axios
       .post("/api/user/forgot", userData)
       .then(response => {
-        this.props.handleResponse(response.data);
+        if (response.data.appOutput) {
+          this.props.handleResponse(response.data.appOutput);
+        }
         this.setState({ emailSent: true });
       })
-      .catch(err => this.setState({ errors: err.response.data }));
+      .catch(err => {
+        console.log(err.response);
+        if (err.response.data.appOutput) {
+          this.props.handleResponse(err.response.data.appOutput);
+        }
+        this.setState({ errors: err.response.data });
+      });
   }
   render() {
     return !this.props.auth && !this.state.emailSent ? (
@@ -51,7 +58,9 @@ export default class Forgot extends Component {
         errors={this.state.errors}
       />
     ) : (
-      <Redirect to="/" />
+      <h2 className="message--big">
+        Password reset email sent to {this.state.email}
+      </h2>
     );
   }
 }

@@ -56,7 +56,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
       message = {
         to: emailAddress,
         from: "test@example.com",
-        subject: "Welcome! Please verify your email address.",
+        subject: "Account Verification",
         html: `
           <div class="email__container" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 auto;max-width: 500px;padding: 0;width: 100%;text-align: center;">
             <h1 style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 25px 0;">Verify your email address</h1>
@@ -79,7 +79,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
       message = {
         to: emailAddress,
         from: "test@example.com",
-        subject: "Thank you for verifying your email address!",
+        subject: "Account Verified",
         html: `
           <div class="email__container" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 auto;max-width: 500px;padding: 0;width: 100%;text-align: center;">
             <h1 style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 25px 0;">Thank you!</h1>
@@ -100,7 +100,7 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
       message = {
         to: emailAddress,
         from: "test@example.com",
-        subject: "Password reset request",
+        subject: "Password Reset Request",
         html: `
           <div class="email__container" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 auto;max-width: 500px;padding: 0;width: 100%;text-align: center;">
             <h1 style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 25px 0;">Password Reset</h1>
@@ -122,12 +122,27 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
       message = {
         to: emailAddress,
         from: "test@example.com",
-        subject: "Account password reset",
+        subject: "Account Password Changed",
         html: `
           <div class="email__container" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 auto;max-width: 500px;padding: 0;width: 100%;text-align: center;">
             <h1 style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 25px 0;">Password Reset</h1>
             <div class="line" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;background: rgba(0, 0, 0, .15);height: 1px;margin: 50px 0;width: 100%;"></div>
             <p style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 30px 0;">Your account password has been changed.</p>
+            <div class="line" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;background: rgba(0, 0, 0, .15);height: 1px;margin: 50px 0;width: 100%;"></div>
+          </div>
+        `
+      };
+      break;
+    case "deleteSuccess":
+      message = {
+        to: emailAddress,
+        from: "test@example.com",
+        subject: "Account Deleted",
+        html: `
+          <div class="email__container" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 auto;max-width: 500px;padding: 0;width: 100%;text-align: center;">
+            <h1 style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 25px 0;">Account Deleted</h1>
+            <div class="line" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;background: rgba(0, 0, 0, .15);height: 1px;margin: 50px 0;width: 100%;"></div>
+            <p style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;margin: 0 0 30px 0;">The account associated with this email address has been deleted.</p>
             <div class="line" style="color: rgba(0, 0, 0, 0.5);font-family: sans-serif;font-weight: 300;background: rgba(0, 0, 0, .15);height: 1px;margin: 50px 0;width: 100%;"></div>
           </div>
         `

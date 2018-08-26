@@ -17,6 +17,7 @@ export default class Profile extends Component {
       deleted: false
     };
     this.deleteAccount = this.deleteAccount.bind(this);
+    this.deleteTimeout = undefined;
   }
   componentDidMount() {
     if (localStorage.jwtToken) {
@@ -33,11 +34,19 @@ export default class Profile extends Component {
       const button = document.getElementById("delete");
       button.classList.add("btn--danger");
       button.innerText = "Click to Confirm";
+      this.deleteTimeout = setTimeout(() => {
+        button.classList.remove("btn--danger");
+        button.innerText = "Delete Account";
+        this.setState({ deleteCount: 0 });
+      }, 5000);
       if (this.state.deleteCount > 1) {
+        clearTimeout(this.deleteTimeout);
         axios
           .delete("api/user")
           .then(response => {
-            this.props.handleResponse(response.data);
+            if (response.data.appOutput) {
+              this.props.handleResponse(response.data.appOutput);
+            }
             this.props.logOut();
             this.setState({ deleted: true });
           })

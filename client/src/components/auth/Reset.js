@@ -18,7 +18,8 @@ export default class Reset extends Component {
       errors: {},
       token: "",
       email: "",
-      reset: false
+      reset: false,
+      invalid: false
     };
     this.formFields = [
       {
@@ -63,26 +64,40 @@ export default class Reset extends Component {
         localStorage.setItem("jwtToken", token);
         setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        this.props.handleResponse(response.data);
+        if (response.data.appOutput) {
+          this.props.handleResponse(response.data.appOutput);
+        }
         this.setState({ reset: true });
       })
-      .catch(error => {
-        this.setState({ errors: error.response.data });
+      .catch(err => {
+        if (err.response.data.appOutput) {
+          this.props.handleResponse(err.response.data.appOutput);
+        }
+        if (err.response.data.invalid) {
+          this.setState({ invalid: true });
+        }
+        this.setState({ errors: err.response.data });
       });
   }
   render() {
-    return !this.state.reset ? (
-      <Form
-        fields={this.formFields}
-        buttonLabel="Change Password"
-        title="Reset Password"
-        links={this.formLinks}
-        onChange={this.handleInputChange}
-        onSubmit={this.resetPassword}
-        errors={this.state.errors}
-      />
-    ) : (
-      <Redirect to="/" />
-    );
+    let content;
+    if (this.state.invalid) {
+      content = <Redirect to="/forgot" />;
+    } else if (!this.state.reset) {
+      content = (
+        <Form
+          fields={this.formFields}
+          buttonLabel="Change Password"
+          title="Reset Password"
+          links={this.formLinks}
+          onChange={this.handleInputChange}
+          onSubmit={this.resetPassword}
+          errors={this.state.errors}
+        />
+      );
+    } else {
+      content = <Redirect to="/" />;
+    }
+    return content;
   }
 }

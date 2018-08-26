@@ -44,18 +44,22 @@ export default class Login extends Component {
     this.loginUser = this.loginUser.bind(this);
   }
   componentDidMount() {
-    if (
-      this.props.match &&
-      this.props.match.params.token &&
-      this.props.match.params.email
-    ) {
+    if (this.props.match.params.token && this.props.match.params.email) {
       this.props.logOutUser();
       const { token, email } = this.props.match.params;
       this.setState({ token, verifyEmail: email });
       axios
         .get(`/api/user/verify/${token}/${email}`)
-        .then(response => this.props.handleResponse(response.data))
-        .catch(err => this.setState({ errors: err.response.data }));
+        .then(response => {
+          if (response.data.appOutput) {
+            this.props.handleResponse(response.data.appOutput);
+          }
+        })
+        .catch(err => {
+          if (err.response.data.appOutput) {
+            this.props.handleResponse(err.response.data.appOutput);
+          }
+        });
     }
   }
   handleInputChange(event) {
@@ -74,7 +78,12 @@ export default class Login extends Component {
         this.props.setCurrentUser(decoded);
         this.props.handleResponse(response.data);
       })
-      .catch(err => this.setState({ errors: err.response.data }));
+      .catch(err => {
+        if (err.response.data.appOutput) {
+          this.props.handleResponse(err.response.data.appOutput);
+        }
+        this.setState({ errors: err.response.data });
+      });
   }
   render() {
     return !this.props.auth ? (

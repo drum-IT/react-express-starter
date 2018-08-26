@@ -26,8 +26,7 @@ export default class App extends Component {
     this.state = {
       user: {},
       auth: false,
-      errors: {},
-      messages: []
+      appOutput: {}
     };
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.logOutUser = this.logOutUser.bind(this);
@@ -62,17 +61,31 @@ export default class App extends Component {
   }
   // THE API RETURNS STANDARDIZED ERRORS AND MESSAGES
   // THIS FUNCTION TAKES IN REPOSNES FROM EVERY API CALL AND SETS ERRORS/MESSAGES
+  // TODO: MAKE THIS BETTER
   handleResponse(data) {
-    this.setState({ messages: data.messages });
+    window.scrollTo(0, 0);
+    this.setState({ appOutput: data });
   }
   // ERRORS AND MESSAGES CAN BE CLICKED TO CLEAR THEM
   // THIS FUNCTION HANDLES THAT
-  clearMessage(clearedMessage) {
-    this.setState({
-      messages: this.state.messages.filter(
+  clearMessage(clearedMessage, error) {
+    if (error) {
+      const appErrors = this.state.appOutput.appErrors.filter(
+        error => error !== clearedMessage
+      );
+      const { appMessages } = this.state.appOutput;
+      this.setState({
+        appOutput: { appErrors, appMessages }
+      });
+    } else {
+      const appMessages = this.state.appOutput.appMessages.filter(
         message => message !== clearedMessage
-      )
-    });
+      );
+      const { appErrors } = this.state.appOutput;
+      this.setState({
+        appOutput: { appErrors, appMessages }
+      });
+    }
   }
   render() {
     return (
@@ -81,7 +94,8 @@ export default class App extends Component {
           <Header user={this.state.user} logOut={this.logOutUser} />
           <Messages
             clearMessage={this.clearMessage}
-            messages={this.state.messages}
+            messages={this.state.appOutput.appMessages}
+            errors={this.state.appOutput.appErrors}
           />
           <Switch>
             <Route

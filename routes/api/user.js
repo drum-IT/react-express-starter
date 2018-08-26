@@ -34,23 +34,26 @@ function sendVerifyEmail(email, host) {
 // @desc   Register a new user account
 // @access Public
 userRouter.post("/register", (req, res) => {
-  const { errors, isValid } = validateRegisterInput(req.body);
+  const { inputErrors, isValid } = validateRegisterInput(req.body);
+  const appErrors = [];
+  const appMessages = [];
+  const appOutput = { appErrors, appMessages };
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.status(400).json(inputErrors);
   }
   return User.find({
     $or: [{ email: req.body.email }, { username: req.body.username }]
   }).then(users => {
     for (let i = 0; i < users.length; i += 1) {
       if (users[i].username === req.body.username) {
-        errors.username = "That username is already in use.";
+        inputErrors.username = "That username is already in use.";
       }
       if (users[i].email === req.body.email) {
-        errors.email = "That email address is already in use.";
+        inputErrors.email = "That email address is already in use.";
       }
     }
-    if (errors.username || errors.email) {
-      return res.status(400).json(errors);
+    if (inputErrors.username || inputErrors.email) {
+      return res.status(400).json(inputErrors);
     }
     const avatar = gravatar.url(
       req.body.email,
@@ -81,9 +84,9 @@ userRouter.post("/register", (req, res) => {
                 ? req.headers.host
                 : req.headers["x-forwarded-host"];
             sendVerifyEmail(email, host);
+            appMessages.push("Registration complete. Please check your email.");
             res.json({
-              savedUser,
-              messages: ["Please check your email."]
+              appOutput
             });
           })
           .catch(err => console.log(err));
@@ -97,7 +100,9 @@ userRouter.post("/register", (req, res) => {
 // @access Public
 userRouter.get("/verify/:token/:email", (req, res) => {
   const { token, email } = req.params;
-  const messages = [];
+  const appErrors = [];
+  const appMessages = [];
+  const appOutput = { appErrors, appMessages };
   if (!token) {
     return res.status(400).json({ message: "Error. No token provided." });
   }
@@ -115,9 +120,15 @@ userRouter.get("/verify/:token/:email", (req, res) => {
         if (updateErr) {
           return res.status(400).json(updateErr);
         }
+        if (!updatedUser) {
+          appErrors.push(
+            "There was an error verifying your account. Please try again."
+          );
+          return res.status(404).json({ appOutput });
+        }
         Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
-        messages.push("Account verified!");
-        return res.json({ messages });
+        appMessages.push(`${updatedUser.email} is now verified.`);
+        return res.json({ appOutput });
       }
     );
   });
@@ -128,7 +139,9 @@ userRouter.get("/verify/:token/:email", (req, res) => {
 // @access Public
 userRouter.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
-  // const messages = [];
+  const appErrors = [];
+  const appMessages = [];
+  const appOutput = { appErrors, appMessages };
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -144,8 +157,10 @@ userRouter.post("/login", (req, res) => {
           ? req.headers.host
           : req.headers["x-forwarded-host"];
       sendVerifyEmail(user.email, host);
-      errors.email = "You must verify your account. Please check your email.";
-      return res.status(400).json(errors);
+      appErrors.push(
+        "You must verify your account before signing in. Please check your email."
+      );
+      return res.status(400).json({ appOutput });
     }
     return bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
@@ -173,7 +188,9 @@ userRouter.post("/login", (req, res) => {
 // @access Public
 userRouter.post("/forgot", (req, res) => {
   const { errors, isValid } = validateForgotInput(req.body);
-  const messages = [];
+  const appErrors = [];
+  const appMessages = [];
+  const appOutput = { appErrors, appMessages };
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -197,8 +214,8 @@ userRouter.post("/forgot", (req, res) => {
           ? req.headers.host
           : req.headers["x-forwarded-host"];
       Mailer.sendEmail("reset", updatedUser.email, host, resetToken);
-      messages.push("Please check your email.");
-      return res.json({ messages });
+      appMessages.push(`Please check your email.`);
+      return res.json({ appOutput });
     }
   );
 });
@@ -208,23 +225,30 @@ userRouter.post("/forgot", (req, res) => {
 // @access Public
 userRouter.post("/reset/:token/:email", (req, res) => {
   const { errors, isValid } = validateResetInput(req.body);
-  const messages = [];
+  const appErrors = [];
+  const appMessages = [];
+  const appOutput = { appErrors, appMessages };
   if (!isValid) {
     return res.status(400).json(errors);
   }
   const { token, email } = req.params;
   return jwt.verify(token, process.env.JWTsecret, err => {
     if (err) {
-      return res.status(500).json({ message: "Failed to authenticate token" });
+      appErrors.push("Failed to authenticate token");
+      return res.status(500).json({ appOutput });
     }
     return User.findOne({ email, resetToken: token }, (findErr, foundUser) => {
-      if (!foundUser || findErr) {
-        errors.formError = "There was an error.";
-        return res.status(404).json(errors);
+      if (findErr) {
+        appErrors.push("There was an error.");
+        return res.status(404).json({ appOutput });
+      }
+      if (!foundUser) {
+        appErrors.push("Reset link is not valid. Please try again.");
+        return res.status(404).json({ appOutput, invalid: true });
       }
       if (foundUser.resetTime <= Date.now()) {
-        errors.formError = "Reset link has expired.";
-        return res.json(errors);
+        appErrors.push("Reset link has expired.");
+        return res.json({ appOutput, invalid: true });
       }
       const { password } = req.body;
       return bcrypt.genSalt(10, (genErr, salt) => {
@@ -239,9 +263,12 @@ userRouter.post("/reset/:token/:email", (req, res) => {
                 return res.json(updateErr);
               }
               if (!updatedUser) {
-                return res.status(404).json({ error: "could not find user" });
+                appErrors.push("Could not find user.");
+                return res.status(404).json({ appOutput });
               }
-              messages.push("Password has been updated.");
+              appMessages.push(
+                "Password has been updated. You are now signed in."
+              );
               const host =
                 process.env.NODE_ENV === "production"
                   ? req.headers.host
@@ -259,7 +286,7 @@ userRouter.post("/reset/:token/:email", (req, res) => {
                   res.json({
                     success: true,
                     token: `Bearer ${updatedToken}`,
-                    messages
+                    appOutput
                   });
                 }
               );
@@ -324,13 +351,17 @@ userRouter.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const messages = [];
-    User.findByIdAndRemove(req.user.id, err => {
+    const appErrors = [];
+    const appMessages = [];
+    const appOutput = { appErrors, appMessages };
+    User.findByIdAndRemove(req.user.id, (err, deletedUser) => {
+      console.log(deletedUser);
       if (err) {
         return res.json(err);
       }
-      messages.push("Account deleted.");
-      return res.json({ messages });
+      Mailer.sendEmail("deleteSuccess", deletedUser.email);
+      appMessages.push("Account deleted.");
+      return res.json({ appOutput });
     });
   }
 );

@@ -22,24 +22,32 @@ body {
 .messages {
   display: grid;
   grid-auto-flow: row;
+  grid-auto-rows: auto;
   grid-gap: 10px;
+  pointer-events: none;
   position: relative;
   top: -56px;
+  width: 100%;
   z-index: 10;
 }
 
 .message {
   background: var(--grey);
   border-radius: 10px;
-  /* box-shadow: 0 2.5px 5px rgba(0, 0, 0, 0.15); */
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   color: var(--darkgrey);
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 300;
   margin: 0 auto;
-  max-width: 90%;
+  max-width: calc(100% - 40px);
   padding: 10px;
+  pointer-events: all;
   transition: opacity 200ms;
+}
+
+.app__error {
+  background: #e7bcba;
 }
 
 .hidden {
@@ -93,6 +101,13 @@ form h2 {
   margin: 0;
 }
 
+.message--big {
+  color: var(--darkgrey);
+  font-weight: 300;
+  margin: 20px auto;
+  text-align: center;
+}
+
 form button {
   background: var(--grey);
   border: none;
@@ -104,6 +119,11 @@ form button {
   padding: 5px 10px;
   outline: none;
   width: calc(100% - 40px);
+}
+
+form button:active {
+  background: var(--darkgrey);
+  color: var(--grey);
 }
 
 form > div:last-child {
@@ -125,7 +145,7 @@ form > div:last-child a {
   align-items: flex-start;
   display: flex;
   flex-direction: column;
-  margin: 20px 20px;
+  margin: 30px 20px;
 }
 
 label {
@@ -159,7 +179,7 @@ input:focus {
   color: rgba(255, 0, 0, 0.7);
   font-size: 0.7rem;
   font-weight: 300;
-  margin-top: 68px;
+  margin-top: 70px;
   position: absolute;
 }
 
@@ -242,7 +262,7 @@ input:focus {
 }
 
 .btn--danger {
-  background: linear-gradient(0deg, #e7bcba, #cccccc);
+  background: linear-gradient(0deg, #f07065, #cccccc);
   background-size: 400% 400%;
 
   -webkit-animation: AnimationName 1s ease infinite;
