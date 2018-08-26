@@ -114,19 +114,21 @@ userRouter.get("/verify/:token/:email", (req, res) => {
       return res.status(500).json({ message: "Failed to authenticate token" });
     }
     return User.findOneAndUpdate(
-      { email },
+      { email, verified: false },
       { verified: true },
       (updateErr, updatedUser) => {
         if (updateErr) {
           return res.status(400).json(updateErr);
         }
         if (!updatedUser) {
-          appErrors.push(
-            "There was an error verifying your account. Please try again."
-          );
+          appErrors.push("Verification link invalid.");
           return res.status(404).json({ appOutput });
         }
-        Mailer.sendEmail("verified", updatedUser.email, req.headers.host);
+        const host =
+          process.env.NODE_ENV === "production"
+            ? req.headers.host
+            : req.headers["x-forwarded-host"];
+        Mailer.sendEmail("verified", updatedUser.email, host);
         appMessages.push(`${updatedUser.email} is now verified.`);
         return res.json({ appOutput });
       }
