@@ -176,12 +176,12 @@ Mailer.sendEmail = (type, emailAddress, host, token) => {
     default:
       break;
   }
-  // if (process.env.NODE_ENV !== "production") {
-  // console.log(message);
-  // console.log(link);
-  // } else {
-  sgMail.send(message);
-  // }
+  if (process.env.NODE_ENV !== "production") {
+    console.log(message);
+    console.log(link);
+  } else {
+    sgMail.send(message);
+  }
 };
 
 module.exports = Mailer;

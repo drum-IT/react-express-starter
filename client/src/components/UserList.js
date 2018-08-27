@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import UserCard from "./UserCard";
+import Paginator from "./layout/Paginator";
 
 export default class UserList extends Component {
   render() {
@@ -11,6 +12,7 @@ export default class UserList extends Component {
               <UserCard key={user.username} user={user} />
             ))
           : "No Users"}
+        {/* {this.props.totalRecords > 10 ? <Paginator /> : null} */}
       </div>
     );
   }

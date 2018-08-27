@@ -301,12 +301,13 @@ userRouter.post("/reset/:token/:email", (req, res) => {
 });
 
 // @route  GET api/user/current
-// @desc   Get the currently logged in user
+// @desc   Get profile for the currently logged in user
 // @access Private
 userRouter.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+    console.log(req.headers);
     User.findById(
       req.user.id,
       "username email avatar isAdmin",
@@ -320,6 +321,9 @@ userRouter.get(
   }
 );
 
+// @route  GET api/user/all/:page
+// @desc   Get all profiles
+// @access Private
 userRouter.get(
   "/all/:page",
   passport.authenticate("jwt", { session: false }),
@@ -334,15 +338,16 @@ userRouter.get(
       return User.find(
         { _id: { $ne: req.user.id } },
         "username email avatar isAdmin verified created",
-        { skip: (page - 1) * 10, limit: 10, sort: { username: "asc" } },
+        { skip: (page - 1) * 10, limit: 100, sort: { username: "asc" } },
         (usersErr, foundUsers) => {
           if (usersErr) {
             errors.users = "There was an error finding the users";
             return res.json(errors);
           }
-          User.countDocuments({ _id: { $ne: req.user.id } }, (err, count) => {
-            return res.json({ foundUsers, count });
-          });
+          return User.countDocuments(
+            { _id: { $ne: req.user.id } },
+            (err, count) => res.json({ foundUsers, count })
+          );
         }
       );
     });

@@ -19,13 +19,14 @@ import Messages from "./components/common/messages/Messages";
 import Profile from "./components/Profile";
 import Register from "./components/auth/Register";
 import Reset from "./components/auth/Reset";
+import PrivateRoute from "./components/PrivateRoute";
 
 export default class App extends Component {
   constructor() {
     super();
     this.state = {
       user: {},
-      auth: false,
+      isAuthenticated: false,
       appOutput: {}
     };
     this.setCurrentUser = this.setCurrentUser.bind(this);
@@ -51,13 +52,13 @@ export default class App extends Component {
   // SET CURRENT USER, AND AUTH HEADER
   setCurrentUser(user) {
     setAuthToken(localStorage.jwtToken);
-    this.setState({ user, auth: true });
+    this.setState({ user, isAuthenticated: true });
   }
   // CLEAR CURRENT USER, AUTH HEADER, AND JWT TOKEN IN LOCAL STORAGE
   logOutUser() {
     setAuthToken(false);
     localStorage.removeItem("jwtToken");
-    this.setState({ user: {}, auth: false });
+    this.setState({ user: {}, isAuthenticated: false });
   }
   // THE API RETURNS STANDARDIZED ERRORS AND MESSAGES
   // THIS FUNCTION TAKES IN REPOSNES FROM EVERY API CALL AND SETS ERRORS/MESSAGES
@@ -105,7 +106,8 @@ export default class App extends Component {
                 <Login
                   {...props}
                   setCurrentUser={this.setCurrentUser}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
+                  logOutUser={this.logOutUser}
                   handleResponse={this.handleResponse}
                 />
               )}
@@ -117,7 +119,7 @@ export default class App extends Component {
                 <Login
                   {...props}
                   setCurrentUser={this.setCurrentUser}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
                   logOutUser={this.logOutUser}
                   handleResponse={this.handleResponse}
                 />
@@ -129,7 +131,7 @@ export default class App extends Component {
               render={props => (
                 <Register
                   {...props}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
                   register={this.registerUser}
                   handleResponse={this.handleResponse}
                 />
@@ -141,7 +143,7 @@ export default class App extends Component {
               render={props => (
                 <Forgot
                   {...props}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
                   handleResponse={this.handleResponse}
                 />
               )}
@@ -152,14 +154,14 @@ export default class App extends Component {
               render={props => (
                 <Reset
                   {...props}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
                   setCurrentUser={this.setCurrentUser}
                   logOutUser={this.logOutUser}
                   handleResponse={this.handleResponse}
                 />
               )}
             />
-            <Route
+            {/* <Route
               exact
               path="/profile"
               render={props => (
@@ -168,9 +170,15 @@ export default class App extends Component {
                   id={this.state.user.id}
                   handleResponse={this.handleResponse}
                   logOut={this.logOutUser}
-                  auth={this.state.auth}
+                  isAuthenticated={this.state.isAuthenticated}
                 />
               )}
+            /> */}
+            <PrivateRoute
+              exact
+              path="/profile"
+              isAuthenticated={this.state.isAuthenticated}
+              component={Profile}
             />
             <Route
               exact
@@ -178,7 +186,9 @@ export default class App extends Component {
               render={props => <Admin {...props} id={this.state.user.id} />}
             />
             <Route
-              render={props => <Home {...props} auth={this.state.auth} />}
+              render={props => (
+                <Home {...props} isAuthenticated={this.state.isAuthenticated} />
+              )}
             />
           </Switch>
         </div>

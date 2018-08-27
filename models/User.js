@@ -36,6 +36,9 @@ const UserSchema = new Schema({
   resetTime: {
     type: Date,
     default: Date.now
+  },
+  knownLocations: {
+    type: Array
   }
 });
 

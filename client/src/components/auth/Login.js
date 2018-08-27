@@ -20,7 +20,8 @@ export default class Login extends Component {
       errors: {},
       token: "",
       verifyEmail: "",
-      messages: {}
+      messages: {},
+      redirectToReferrer: false
     };
     // FORM FIELDS
     this.formFields = [
@@ -72,13 +73,15 @@ export default class Login extends Component {
       .post("/api/user/login", userData)
       .then(response => {
         const { token } = response.data;
+        setAuthToken(token);
+        this.props.handleResponse(response.data);
+        this.setState({ redirectToReferrer: true });
         const decoded = jwtDecode(token);
         localStorage.setItem("jwtToken", token);
-        setAuthToken(token);
         this.props.setCurrentUser(decoded);
-        this.props.handleResponse(response.data);
       })
       .catch(err => {
+        console.log("good");
         if (err.response.data.appOutput) {
           this.props.handleResponse(err.response.data.appOutput);
         }
@@ -86,7 +89,14 @@ export default class Login extends Component {
       });
   }
   render() {
-    return !this.props.auth ? (
+    const { from } = this.props.location.state || {
+      from: { pathname: "/profile" }
+    };
+    const { redirectToReferrer } = this.state;
+    if (this.props.isAuthenticated || redirectToReferrer) {
+      return <Redirect to={from} />;
+    }
+    return (
       <Form
         fields={this.formFields}
         buttonLabel="Sign In"
@@ -96,8 +106,6 @@ export default class Login extends Component {
         onSubmit={this.loginUser}
         errors={this.state.errors}
       />
-    ) : (
-      <Redirect to="/profile" />
     );
   }
 }

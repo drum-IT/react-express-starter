@@ -5,7 +5,6 @@ import setAuthToken from "../util/setAuthToken";
 
 import Spinner from "./common/Spinner";
 import UserList from "./UserList";
-import Paginator from "./layout/Pagingator";
 
 export default class Admin extends Component {
   constructor() {
@@ -24,12 +23,14 @@ export default class Admin extends Component {
       setAuthToken(localStorage.jwtToken);
       axios
         .get(`/api/user/all/${this.state.page}`)
-        .then(response =>
-          this.setState({
-            users: response.data.foundUsers,
-            totalUsers: response.data.count,
-            loading: false
-          })
+        .then(
+          response =>
+            !console.log(response.data) &&
+            this.setState({
+              users: response.data.foundUsers,
+              totalUsers: response.data.count,
+              loading: false
+            })
         )
         .catch(err => console.log(err.response.data));
     }
@@ -39,8 +40,10 @@ export default class Admin extends Component {
       <Spinner />
     ) : (
       <div>
-        <UserList users={this.state.users} />
-        {this.state.totalUsers > 10 ? <Paginator /> : null}
+        <UserList
+          totalRecords={this.state.totalUsers}
+          users={this.state.users}
+        />
       </div>
     );
   }
