@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import UserCard from "./UserCard";
-import Paginator from "./layout/Paginator";
+// import Paginator from "./layout/Paginator";
 
 export default class UserList extends Component {
   render() {

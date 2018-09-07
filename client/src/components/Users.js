@@ -23,14 +23,12 @@ export default class Admin extends Component {
       setAuthToken(localStorage.jwtToken);
       axios
         .get(`/api/user/all/${this.state.page}`)
-        .then(
-          response =>
-            !console.log(response.data) &&
-            this.setState({
-              users: response.data.foundUsers,
-              totalUsers: response.data.count,
-              loading: false
-            })
+        .then(response =>
+          this.setState({
+            users: response.data.foundUsers,
+            totalUsers: response.data.count,
+            loading: false
+          })
         )
         .catch(err => console.log(err.response.data));
     }

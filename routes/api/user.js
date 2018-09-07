@@ -333,8 +333,12 @@ userRouter.get(
     const errors = {};
     const { page } = req.params;
     User.findById(req.user.id, (userErr, foundUser) => {
-      if (userErr || !foundUser.isAdmin) {
-        errors.admin = "Error while verifying admin rights.";
+      // if (userErr || !foundUser.isAdmin) {
+      //   errors.admin = "Error while verifying admin rights.";
+      //   return res.json(errors);
+      // }
+      if (userErr) {
+        errors.admin = "Error while verifying user.";
         return res.json(errors);
       }
       return User.find(
