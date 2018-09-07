@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
+import Moment from "react-moment";
 
 import Spinner from "./common/Spinner";
 import Avatar from "../assets/images/avatar.jpg";
@@ -22,15 +24,28 @@ export default class Profile extends Component {
   componentDidMount() {
     if (localStorage.jwtToken) {
       setAuthToken(localStorage.jwtToken);
-      axios
-        .get("/api/user/current")
-        .then(response =>
-          this.setState({
-            user: response.data,
-            gotUser: true
-          })
-        )
-        .catch(err => console.log(err.response.data));
+      if (this.props.computedMatch.params.handle) {
+        const handle = this.props.computedMatch.params.handle;
+        axios
+          .get(`/api/user/profiles/${handle}`)
+          .then(response =>
+            this.setState({
+              user: response.data,
+              gotUser: true
+            })
+          )
+          .catch(err => console.log(err.response.data));
+      } else {
+        axios
+          .get("/api/user/current")
+          .then(response =>
+            this.setState({
+              user: response.data,
+              gotUser: true
+            })
+          )
+          .catch(err => console.log(err.response.data));
+      }
     }
   }
   deleteAccount(event) {
@@ -70,6 +85,7 @@ export default class Profile extends Component {
   }
   render() {
     const { user } = this.state;
+    const id = jwtDecode(localStorage.jwtToken).id;
     let content;
     if (this.state.gotUser) {
       content = (
@@ -80,12 +96,18 @@ export default class Profile extends Component {
             </div>
           </div>
           <div className="profile__details">
-            <p> {user.username} </p> <p> {user.email} </p>
+            <p> {user.username} </p>
+            {/* <p> {user.email} </p> */}
+            <p>
+              Member since <Moment format="MMM YYYY">{user.created}</Moment>
+            </p>
           </div>
           <div className="profile__controls">
-            <button id="delete" className="btn" onClick={this.deleteAccount}>
-              Delete Account
-            </button>
+            {id === user._id ? (
+              <button id="delete" className="btn" onClick={this.deleteAccount}>
+                Delete Account
+              </button>
+            ) : null}
           </div>
         </div>
       );

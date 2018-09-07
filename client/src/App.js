@@ -175,6 +175,14 @@ export default class App extends Component {
             />
             <PrivateRoute
               exact
+              path="/users/:handle"
+              isAuthenticated={this.state.isAuthenticated}
+              handleResponse={this.handleResponse}
+              logOutUser={this.logOutUser}
+              component={Profile}
+            />
+            <PrivateRoute
+              exact
               path="/users"
               isAuthenticated={this.state.isAuthenticated}
               component={Users}

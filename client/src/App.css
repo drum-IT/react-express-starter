@@ -224,13 +224,14 @@ input:focus {
   display: grid;
   justify-content: center;
   justify-items: center;
-  margin: 0px auto 50px auto;
+  margin: 0px auto 10px auto;
 }
 
 .profile__details p {
   color: var(--darkgrey);
   font-weight: 300;
   font-size: 1.3rem;
+  margin: 25px auto;
 }
 
 .profile__details p:first-child {
@@ -341,6 +342,10 @@ input:focus {
 .user__card img {
   border-radius: 5px 0px 0px 5px;
   height: 100%;
+}
+
+.user__card--wrapper {
+  text-decoration: none;
 }
 
 .user__details {

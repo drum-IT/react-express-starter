@@ -46,7 +46,13 @@ userRouter.post("/register", (req, res) => {
     $or: [{ email: req.body.email }, { username: req.body.username }]
   }).then(users => {
     for (let i = 0; i < users.length; i += 1) {
-      if (users[i].username === req.body.username) {
+      if (
+        users[i].username === req.body.username ||
+        req.body.username.toLowerCase() === "handle" ||
+        req.body.username.toLowerCase() === "profile" ||
+        req.body.username.toLowerCase() === "user" ||
+        req.body.username.toLowerCase() === "admin"
+      ) {
         inputErrors.username = "That username is already in use.";
       }
       if (users[i].email === req.body.email) {
@@ -309,10 +315,30 @@ userRouter.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    console.log(req.headers);
     User.findById(
       req.user.id,
-      "username email avatar isAdmin",
+      "username email avatar created",
+      (err, foundUser) => {
+        if (err) {
+          return res.json(err);
+        }
+        return res.json(foundUser);
+      }
+    );
+  }
+);
+
+// @route  GET api/user/:handle
+// @desc   Get profile for user by handle
+// @access Private
+userRouter.get(
+  "/profiles/:handle",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const username = req.params.handle.toLowerCase();
+    User.findOne(
+      { usernameL: username },
+      "username avatar created",
       (err, foundUser) => {
         if (err) {
           return res.json(err);
@@ -394,6 +420,7 @@ userRouter.get(
   }
 );
 
+// DELETE A USER ACCOUNT
 userRouter.delete(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -402,7 +429,6 @@ userRouter.delete(
     const appMessages = [];
     const appOutput = { appErrors, appMessages };
     User.findByIdAndRemove(req.user.id, (err, deletedUser) => {
-      console.log(deletedUser);
       if (err) {
         return res.json(err);
       }
