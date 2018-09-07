@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect, Link } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 
 import Spinner from "./common/Spinner";
@@ -24,35 +24,49 @@ export default class Profile extends Component {
       setAuthToken(localStorage.jwtToken);
       axios
         .get("/api/user/current")
-        .then(response => this.setState({ user: response.data, gotUser: true }))
+        .then(response =>
+          this.setState({
+            user: response.data,
+            gotUser: true
+          })
+        )
         .catch(err => console.log(err.response.data));
     }
   }
   deleteAccount(event) {
     event.preventDefault();
-    this.setState({ deleteCount: this.state.deleteCount + 1 }, () => {
-      const button = document.getElementById("delete");
-      button.classList.add("btn--danger");
-      button.innerText = "Click to Confirm";
-      this.deleteTimeout = setTimeout(() => {
-        button.classList.remove("btn--danger");
-        button.innerText = "Delete Account";
-        this.setState({ deleteCount: 0 });
-      }, 5000);
-      if (this.state.deleteCount > 1) {
-        clearTimeout(this.deleteTimeout);
-        axios
-          .delete("api/user")
-          .then(response => {
-            if (response.data.appOutput) {
-              this.props.handleResponse(response.data.appOutput);
-            }
-            this.props.logOut();
-            this.setState({ deleted: true });
-          })
-          .catch(err => console.log(err));
+    this.setState(
+      {
+        deleteCount: this.state.deleteCount + 1
+      },
+      () => {
+        const button = document.getElementById("delete");
+        button.classList.add("btn--danger");
+        button.innerText = "Click to Confirm";
+        this.deleteTimeout = setTimeout(() => {
+          button.classList.remove("btn--danger");
+          button.innerText = "Delete Account";
+          this.setState({
+            deleteCount: 0
+          });
+        }, 5000);
+        if (this.state.deleteCount > 1) {
+          clearTimeout(this.deleteTimeout);
+          axios
+            .delete("api/user")
+            .then(response => {
+              if (response.data.appOutput) {
+                this.props.handleResponse(response.data.appOutput);
+              }
+              this.setState({
+                deleted: true
+              });
+              this.props.logOutUser();
+            })
+            .catch(err => console.log(err));
+        }
       }
-    });
+    );
   }
   render() {
     const { user } = this.state;
@@ -66,15 +80,9 @@ export default class Profile extends Component {
             </div>
           </div>
           <div className="profile__details">
-            <p>{user.username}</p>
-            <p>{user.email}</p>
+            <p> {user.username} </p> <p> {user.email} </p>
           </div>
           <div className="profile__controls">
-            {this.state.user.isAdmin ? (
-              <Link to="/admin" className="btn">
-                Admin Tools
-              </Link>
-            ) : null}
             <button id="delete" className="btn" onClick={this.deleteAccount}>
               Delete Account
             </button>

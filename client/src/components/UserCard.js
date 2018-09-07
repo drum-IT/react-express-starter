@@ -7,13 +7,12 @@ export default class UserCard extends Component {
     return (
       <div className="user__card">
         <img src={user.avatar} alt="user avatar" />
-        <p>{user.username}</p>
-        <p>{user.email}</p>
-        <p>
-          Member since <Moment format="MMM YYYY">{user.created}</Moment>
-        </p>
-        {user.verified ? <p>Verified</p> : <p>Unverified</p>}
-        {user.isAdmin ? <p>Admin</p> : <p>Not Admin</p>}
+        <div className="user__details">
+          <p className="user__handle user__detail">{user.username}</p>
+          <p className="user__age user__detail">
+            Member since <Moment format="MMM YYYY">{user.created}</Moment>
+          </p>
+        </div>
       </div>
     );
   }

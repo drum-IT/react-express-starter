@@ -16,6 +16,7 @@ export default class Header extends Component {
         ) : (
           <nav>
             <Link to="/profile">My Profile</Link>
+            <Link to="/users">Users</Link>
             <Link to="/" onClick={this.props.logOut}>
               Sign Out
             </Link>

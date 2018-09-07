@@ -9,6 +9,7 @@ const passport = require("passport");
 
 // GET MAILER MODULE. USED TO SEND REGISTRATION AND VERIFICATION EMAILS.
 const Mailer = require("../../util/mailer");
+const userMaker = require("../../util/usermaker");
 
 // GET VALIDATORS
 const validateRegisterInput = require("../../validation/register");
@@ -64,6 +65,7 @@ userRouter.post("/register", (req, res) => {
       email: req.body.email,
       password: req.body.password,
       username: req.body.username,
+      usernameL: req.body.username.toLowerCase(),
       avatar
     });
     return bcrypt.genSalt(10, (genErr, salt) => {
@@ -336,6 +338,40 @@ userRouter.get(
         return res.json(errors);
       }
       return User.find(
+        // { _id: { $ne: req.user.id } },
+        {},
+        "username avatar created",
+        { skip: (page - 1) * 10, limit: 100, sort: { usernameL: "asc" } },
+        (usersErr, foundUsers) => {
+          if (usersErr) {
+            errors.users = "There was an error finding the users";
+            return res.json(errors);
+          }
+          return User.countDocuments(
+            { _id: { $ne: req.user.id } },
+            (err, count) => res.json({ foundUsers, count })
+          );
+        }
+      );
+    });
+  }
+);
+
+// @route  GET api/user/admin/:page
+// @desc   Get all profiles
+// @access Private
+userRouter.get(
+  "/admin/:page",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+    const { page } = req.params;
+    User.findById(req.user.id, (userErr, foundUser) => {
+      if (userErr || !foundUser.isAdmin) {
+        errors.admin = "Error while verifying admin rights.";
+        return res.json(errors);
+      }
+      return User.find(
         { _id: { $ne: req.user.id } },
         "username email avatar isAdmin verified created",
         { skip: (page - 1) * 10, limit: 100, sort: { username: "asc" } },
@@ -370,6 +406,60 @@ userRouter.delete(
       appMessages.push("Account deleted.");
       return res.json({ appOutput });
     });
+  }
+);
+
+userRouter.post(
+  "/generate",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = [];
+    const newUsers = [];
+    if (req.user.isAdmin) {
+      userMaker.users.forEach(user => {
+        User.find({
+          $or: [{ email: user.email }, { username: user.username }]
+        }).then(users => {
+          for (let i = 0; i < users.length; i += 1) {
+            if (users[i].username === user.username) {
+              errors.push(`${user.username} is already in use.`);
+            }
+            if (users[i].email === user.email) {
+              errors.push(`${user.email} is already in use.`);
+            }
+          }
+          if (errors.length > 0) {
+            return;
+          }
+          const avatar = gravatar.url(
+            user.email,
+            { s: "500", r: "pg", d: "retro" },
+            true
+          );
+          const newUser = new User({
+            email: user.email,
+            password: "password",
+            username: user.username,
+            usernameL: user.username.toLowerCase(),
+            avatar
+          });
+          bcrypt.genSalt(10, (genErr, salt) => {
+            if (genErr) throw genErr;
+            bcrypt.hash(newUser.password, salt, (hashErr, hash) => {
+              if (hashErr) throw hashErr;
+              newUser.password = hash;
+              newUser
+                .save()
+                .then(savedUser => {
+                  newUsers.push(savedUser);
+                })
+                .catch(err => console.log(err));
+            });
+          });
+        });
+      });
+      res.json({ errors, newUsers });
+    }
   }
 );
 
