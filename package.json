@@ -2,7 +2,7 @@
   "name": "react-express-boiler",
   "version": "1.0.0",
   "engines": {
-    "node": "8.12.x"
+    "node": "10.10.x"
   },
   "description": "",
   "main": "server.js",
