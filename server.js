@@ -9,15 +9,11 @@ const morgan = require("morgan");
 const passport = require("passport");
 const path = require("path");
 
-// PREP APP AND SOCKET.IO
-const app = express();
-const server = require("http").Server(app);
-const io = require("socket.io")(server);
-
 // GET ROUTERS
 const userRouter = require("./routes/api/user");
 
 // CONFIGURE EXPRESS SERVER
+const app = express();
 app.use(
   bodyParser.urlencoded({
     extended: false
@@ -67,16 +63,5 @@ app.get("*", (req, res) => {
 
 // START SERVER
 const PORT = process.env.PORT || 5000;
-// app.listen(PORT);
-server.listen(PORT);
+app.listen(PORT);
 console.log(`The server is now listening on port ${PORT}.`);
-
-// Socket.IO
-io.on("connection", socket => {
-  socket.emit("news", {
-    hello: "world"
-  });
-  socket.on("my other event", data => {
-    console.log(data);
-  });
-});
